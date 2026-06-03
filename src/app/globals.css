@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Base styles for mobile-first, minimal UI */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  min-height: 100vh;
+}
+
+/* Make all inputs and buttons large enough for touch targets (48px min) */
+input, select, textarea {
+  min-height: 44px;
+}
+
+button {
+  min-height: 44px;
+  cursor: pointer;
+}
+
+/* Scrollable tables on small screens */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

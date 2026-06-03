@@ -122,6 +122,26 @@ function AddFromBarcodeModal({
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [nameLookup, setNameLookup] = useState('')
+  const [isFetchingInfo, setIsFetchingInfo] = useState(true)
+
+  // Try to autofill name using OpenFoodFacts
+  useEffect(() => {
+    async function fetchName() {
+      setIsFetchingInfo(true)
+      try {
+        const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
+        const data = await res.json()
+        if (data && data.status === 1 && data.product && data.product.product_name) {
+          setNameLookup(data.product.product_name)
+        }
+      } catch (e) {
+        // Ignore fetch errors - fallback to manual entry
+      }
+      setIsFetchingInfo(false)
+    }
+    fetchName()
+  }, [barcode])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -178,6 +198,8 @@ function AddFromBarcodeModal({
               name="name"
               required
               autoFocus
+              defaultValue={nameLookup}
+              placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coca-Cola 1.5L'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>

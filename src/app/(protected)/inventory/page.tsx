@@ -30,6 +30,30 @@ function ProductForm({
   const [error, setError] = useState('')
   const [showScanner, setShowScanner] = useState(false)
   const [barcode, setBarcode] = useState(product?.barcode || '')
+  
+  const [nameLookup, setNameLookup] = useState('')
+  const [isFetchingInfo, setIsFetchingInfo] = useState(false)
+
+  // Try to autofill name using OpenFoodFacts if it's a new product
+  useEffect(() => {
+    async function fetchName() {
+      // Don't autofetch if editing an existing product or barcode is empty
+      if (product || !barcode || barcode.length < 4) return
+      
+      setIsFetchingInfo(true)
+      try {
+        const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
+        const data = await res.json()
+        if (data && data.status === 1 && data.product && data.product.product_name) {
+          setNameLookup(data.product.product_name)
+        }
+      } catch (e) {
+        // Ignore fetch errors - fallback to manual entry
+      }
+      setIsFetchingInfo(false)
+    }
+    fetchName()
+  }, [barcode, product])
 
   const isEditing = !!product
 
@@ -98,9 +122,9 @@ function ProductForm({
               <label className="block text-xs font-medium text-gray-600 mb-1">Product Name *</label>
               <input
                 name="name"
-                defaultValue={product?.name || ''}
+                defaultValue={product?.name || nameLookup || ''}
                 required
-                placeholder="e.g. Coke 1.5L"
+                placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coke 1.5L'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>

@@ -6,7 +6,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { BrowserMultiFormatReader, IScannerControls } from '@zxing/library'
+import { BrowserMultiFormatReader } from '@zxing/library'
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void
@@ -15,7 +15,7 @@ interface BarcodeScannerProps {
 
 export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const controlsRef = useRef<IScannerControls | null>(null)
+  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null)
   const [error, setError] = useState('')
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDevice, setSelectedDevice] = useState<string>('')
@@ -29,7 +29,8 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
     async function startScanner() {
       try {
         // Get available video input devices (cameras)
-        const videoDevices = await BrowserMultiFormatReader.listVideoInputDevices()
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = devices.filter(device => device.kind === 'videoinput')
         setDevices(videoDevices)
 
         // Prefer back/rear camera on mobile
@@ -39,13 +40,14 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             d.label.toLowerCase().includes('rear') ||
             d.label.toLowerCase().includes('environment')
         )
-        const deviceId = backCamera?.deviceId || videoDevices[0]?.deviceId || undefined
+        const deviceId = backCamera?.deviceId || videoDevices[0]?.deviceId || null
         setSelectedDevice(deviceId || '')
 
         if (!videoRef.current) return
 
         setScanning(true)
-        const controls = await codeReader.decodeFromVideoDevice(
+        codeReaderRef.current = codeReader
+        await codeReader.decodeFromVideoDevice(
           deviceId,
           videoRef.current,
           (result, err) => {
@@ -56,7 +58,6 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             }
           }
         )
-        controlsRef.current = controls
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Unknown error'
         if (message.includes('NotAllowedError') || message.includes('Permission')) {
@@ -74,23 +75,24 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
     // Cleanup: stop video stream when modal closes
     return () => {
-      if (controlsRef.current) {
-        controlsRef.current.stop()
+      if (codeReaderRef.current) {
+        codeReaderRef.current.reset()
       }
     }
   }, [onScan])
 
   // Switch camera
   async function switchCamera(deviceId: string) {
-    if (controlsRef.current) {
-      controlsRef.current.stop()
+    if (codeReaderRef.current) {
+      codeReaderRef.current.reset()
     }
     setSelectedDevice(deviceId)
     hasScanned.current = false
 
     const codeReader = new BrowserMultiFormatReader()
+    codeReaderRef.current = codeReader
     if (videoRef.current) {
-      const controls = await codeReader.decodeFromVideoDevice(
+      await codeReader.decodeFromVideoDevice(
         deviceId,
         videoRef.current,
         (result) => {
@@ -100,7 +102,6 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           }
         }
       )
-      controlsRef.current = controls
     }
   }
 

@@ -1,6 +1,7 @@
 /**
- * Next.js Middleware — Protects all routes except /login
- * Runs on the Edge Runtime (fast, no cold starts)
+ * Next.js Proxy — Protects all routes except /login
+ * (Renamed from middleware.ts — Next.js 16 renamed this to proxy.ts)
+ * Runs before every request to check authentication
  */
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
@@ -9,7 +10,7 @@ import { decrypt } from '@/lib/session'
 // Public paths that don't require authentication
 const PUBLIC_PATHS = ['/login']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths without a session check
@@ -35,7 +36,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-// Apply middleware to all routes except static files and Next.js internals
+// Apply proxy to all routes except static files and Next.js internals
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|sw.js).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|sw.js|workbox-).*)'],
 }

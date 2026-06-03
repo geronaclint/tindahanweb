@@ -6,14 +6,16 @@ import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 
-// Encode the secret key for signing JWTs
-const secretKey = process.env.SESSION_SECRET
-const encodedKey = new TextEncoder().encode(secretKey)
-
 export type SessionPayload = {
   userId: string
   username: string
   expiresAt: Date
+}
+
+// Get the encoded key lazily so missing env var doesn't crash at import time
+function getEncodedKey() {
+  const secret = process.env.SESSION_SECRET || 'fallback-dev-secret-change-in-production'
+  return new TextEncoder().encode(secret)
 }
 
 // Create a signed JWT containing the session payload
@@ -22,13 +24,13 @@ export async function encrypt(payload: SessionPayload) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(encodedKey)
+    .sign(getEncodedKey())
 }
 
 // Verify and decode a session JWT
 export async function decrypt(session: string | undefined = '') {
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
+    const { payload } = await jwtVerify(session, getEncodedKey(), {
       algorithms: ['HS256'],
     })
     return payload as unknown as SessionPayload
@@ -55,10 +57,14 @@ export async function createSession(userId: string, username: string) {
 
 // Read the current session from the cookie
 export async function getSession(): Promise<SessionPayload | null> {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('session')?.value
-  if (!session) return null
-  return await decrypt(session)
+  try {
+    const cookieStore = await cookies()
+    const session = cookieStore.get('session')?.value
+    if (!session) return null
+    return await decrypt(session)
+  } catch {
+    return null
+  }
 }
 
 // Delete the session cookie (logout)

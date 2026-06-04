@@ -13,9 +13,10 @@ const navLinks = [
   { href: '/inventory', label: '📦 Inventory', title: 'Inventory' },
   { href: '/sales', label: '💰 Sales', title: 'Sales Records' },
   { href: '/logs', label: '📋 Logs', title: 'Activity Logs' },
+  { href: '/settings', label: '⚙️ Settings', title: 'Store Profile' },
 ]
 
-export default function Navigation({ storeName }: { storeName?: string }) {
+export default function Navigation({ storeName, profilePhoto }: { storeName?: string, profilePhoto?: string | null }) {
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -55,10 +56,18 @@ export default function Navigation({ storeName }: { storeName?: string }) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-52 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 min-h-screen fixed top-0 left-0 z-10 transition-colors">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-          <h1 className="text-lg font-bold text-blue-700 dark:text-blue-400 truncate">🛒 {storeName || 'Tindahan POS'}</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Store Management</p>
+        <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+          {profilePhoto ? (
+            <img src={profilePhoto} alt="Store" className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-700 dark:text-blue-400 text-xl font-bold border border-blue-200 dark:border-blue-800 flex-shrink-0">
+              {storeName ? storeName.charAt(0).toUpperCase() : '🛒'}
+            </div>
+          )}
+          <div className="overflow-hidden">
+            <h1 className="text-lg font-bold text-blue-700 dark:text-blue-400 truncate w-full">{storeName || 'Tindahan POS'}</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">Store Management</p>
+          </div>
         </div>
 
         {/* Nav Links */}

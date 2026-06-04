@@ -195,67 +195,67 @@ function AddFromBarcodeModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-sm shadow-xl">
-        <div className="p-4 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-900">Product Not Found</h3>
-          <p className="text-sm text-gray-500 mt-0.5">Add this product to inventory?</p>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-sm shadow-xl border border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Product Not Found</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Add this product to inventory?</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-3">
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Barcode</label>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
             <input
               name="barcode"
               defaultValue={barcode}
               readOnly
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50"
+              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Product Name *</label>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Product Name *</label>
             <input
               name="name"
               required
               autoFocus
               defaultValue={nameLookup}
               placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coca-Cola 1.5L'}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
             />
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Qty *</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Qty *</label>
               <input
                 name="quantity"
                 type="number"
                 min="0"
                 required
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Cost (₱) *</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Cost (₱) *</label>
               <input
                 name="cost_price"
                 type="number"
                 min="0"
                 step="0.01"
                 required
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Price (₱) *</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Price (₱) *</label>
               <input
                 name="selling_price"
                 type="number"
                 min="0"
                 step="0.01"
                 required
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
             </div>
           </div>
@@ -264,7 +264,7 @@ function AddFromBarcodeModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+              className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
             >
               Cancel
             </button>
@@ -293,11 +293,11 @@ function SaleSuccessModal({
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-sm shadow-xl text-center p-6">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-sm shadow-xl text-center p-6">
         <div className="text-5xl mb-3">✅</div>
-        <h3 className="text-xl font-bold text-gray-900">Sale Complete!</h3>
-        <p className="text-gray-500 text-sm mt-1">{transactionNumber}</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Sale Complete!</h3>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{transactionNumber}</p>
         <p className="text-3xl font-bold text-green-600 mt-4">₱{totalAmount.toFixed(2)}</p>
         <button
           onClick={onClose}

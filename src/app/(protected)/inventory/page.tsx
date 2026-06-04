@@ -101,31 +101,31 @@ function ProductForm({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl w-full max-w-md shadow-xl max-h-screen overflow-y-auto">
-          <div className="p-4 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-xl max-h-screen overflow-y-auto border border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
               {isEditing ? 'Edit Product' : 'Add New Product'}
             </h3>
           </div>
 
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg text-red-700 dark:text-red-400 text-sm">
                 {error}
               </div>
             )}
 
             {/* Barcode with scanner button */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Barcode</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
               <div className="flex gap-2">
                 <input
                   name="barcode"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="Scan or type barcode..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
                 />
                 <button
                   type="button"
@@ -140,25 +140,25 @@ function ProductForm({
 
             {/* Product Name */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Product Name *</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Product Name *</label>
               <input
                 name="name"
                 defaultValue={product?.name || nameLookup || ''}
                 required
                 placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coke 1.5L'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Category</label>
               <input
                 name="category"
                 list="category-suggestions"
                 defaultValue={product?.category || ''}
                 placeholder="e.g. Beverages, Snacks"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
               <datalist id="category-suggestions">
                 {existingCategories.map((c) => (
@@ -169,21 +169,21 @@ function ProductForm({
 
             {/* Quantity */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Quantity *</label>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Quantity *</label>
               <input
                 name="quantity"
                 type="number"
                 min="0"
                 defaultValue={product?.quantity ?? ''}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
               />
             </div>
 
             {/* Prices */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Cost Price (₱) *</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Cost Price (₱) *</label>
                 <input
                   name="cost_price"
                   type="number"
@@ -191,11 +191,11 @@ function ProductForm({
                   step="0.01"
                   defaultValue={product?.cost_price ?? ''}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Selling Price (₱) *</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Selling Price (₱) *</label>
                 <input
                   name="selling_price"
                   type="number"
@@ -203,7 +203,7 @@ function ProductForm({
                   step="0.01"
                   defaultValue={product?.selling_price ?? ''}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ function ProductForm({
                 type="button"
                 onClick={onClose}
                 disabled={isPending}
-                className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+                className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
                 Cancel
               </button>
@@ -263,16 +263,16 @@ function DeleteModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-sm shadow-xl p-5">
-        <h3 className="font-semibold text-gray-900 mb-2">Delete Product?</h3>
-        <p className="text-gray-600 text-sm mb-4">
-          Are you sure you want to delete <strong>{product.name}</strong>? This cannot be undone.
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-sm shadow-xl p-5">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Delete Product?</h3>
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+          Are you sure you want to delete <strong className="dark:text-white">{product.name}</strong>? This cannot be undone.
         </p>
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700"
+            className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
           >
             Cancel
           </button>

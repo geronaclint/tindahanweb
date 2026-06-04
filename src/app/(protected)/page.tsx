@@ -125,19 +125,35 @@ function AddFromBarcodeModal({
   const [nameLookup, setNameLookup] = useState('')
   const [isFetchingInfo, setIsFetchingInfo] = useState(true)
 
-  // Try to autofill name using OpenFoodFacts
+  // Try to autofill name using external APIs
   useEffect(() => {
     async function fetchName() {
+      if (!barcode || barcode.length < 4) return
+      
       setIsFetchingInfo(true)
+      let foundName = ''
+
+      // 1. Try OpenFoodFacts (good for global food)
       try {
-        const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
-        const data = await res.json()
-        if (data && data.status === 1 && data.product && data.product.product_name) {
-          setNameLookup(data.product.product_name)
+        const res1 = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
+        const data1 = await res1.json()
+        if (data1?.status === 1 && data1?.product?.product_name) {
+          foundName = data1.product.product_name
         }
-      } catch (e) {
-        // Ignore fetch errors - fallback to manual entry
+      } catch (e) { /* ignore */ }
+
+      // 2. Try UPCItemDB Fallback (good for general retail/hardware/local)
+      if (!foundName) {
+        try {
+          const res2 = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`)
+          const data2 = await res2.json()
+          if (data2?.code === 'OK' && data2?.items?.length > 0) {
+            foundName = data2.items[0].title
+          }
+        } catch (e) { /* ignore */ }
       }
+
+      if (foundName) setNameLookup(foundName)
       setIsFetchingInfo(false)
     }
     fetchName()

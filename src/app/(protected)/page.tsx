@@ -10,6 +10,7 @@ import type { Product, CartItem, DashboardStats } from '@/lib/types'
 import { completeSale } from '@/app/actions/sales'
 import BarcodeScanner from '@/components/BarcodeScanner'
 
+
 // ─── Dashboard Stats Card ───────────────────────────────────────────────────
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
@@ -318,6 +319,8 @@ export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [showScanner, setShowScanner] = useState(false)
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [showDashboardStats, setShowDashboardStats] = useState(false)
+
   const [loading, setLoading] = useState(false)
   const [saleLoading, setSaleLoading] = useState(false)
   const [saleSuccess, setSaleSuccess] = useState<{ transactionNumber: string; totalAmount: number } | null>(null)
@@ -452,20 +455,36 @@ export default function POSPage() {
         <p className="text-xs text-gray-500 dark:text-gray-400">Search products, scan barcodes, complete sales</p>
       </div>
 
-      {/* Dashboard Stats */}
+      {/* Dashboard Stats (collapsible) */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
-          <StatCard label="Total Products" value={stats.totalProducts.toString()} color="border-blue-500" />
-          <StatCard label="Inventory Value" value={`₱${stats.totalInventoryValue.toFixed(0)}`} color="border-purple-500" />
-          <StatCard label="Sales Today" value={`₱${stats.totalSalesToday.toFixed(0)}`} color="border-green-500" />
-          <StatCard label="Sales This Month" value={`₱${stats.totalSalesMonth.toFixed(0)}`} color="border-yellow-500" />
-          <StatCard
-            label="Low Stock Items"
-            value={stats.lowStockCount.toString()}
-            color={stats.lowStockCount > 0 ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'}
-          />
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Dashboard</h2>
+            <button
+              type="button"
+              onClick={() => setShowDashboardStats((v) => !v)}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+            >
+              {showDashboardStats ? 'Hide' : 'Show'} stats
+            </button>
+          </div>
+
+          {showDashboardStats && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              <StatCard label="Total Products" value={stats.totalProducts.toString()} color="border-blue-500" />
+              <StatCard label="Inventory Value" value={`₱${stats.totalInventoryValue.toFixed(0)}`} color="border-purple-500" />
+              <StatCard label="Sales Today" value={`₱${stats.totalSalesToday.toFixed(0)}`} color="border-green-500" />
+              <StatCard label="Sales This Month" value={`₱${stats.totalSalesMonth.toFixed(0)}`} color="border-yellow-500" />
+              <StatCard
+                label="Low Stock Items"
+                value={stats.lowStockCount.toString()}
+                color={stats.lowStockCount > 0 ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'}
+              />
+            </div>
+          )}
         </div>
       )}
+
 
       {/* Main Grid: On mobile, cart is first (order-1), search is second (order-2). On md/desktop, layout is standard. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

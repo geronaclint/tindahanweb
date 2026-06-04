@@ -119,7 +119,7 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+<div className="fixed inset-0 bg-black/50 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-900 rounded-xl p-5 w-full max-w-sm shadow-xl">
             <h3 className="font-bold text-gray-900 dark:text-white text-lg">Confirm Logout</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-5">

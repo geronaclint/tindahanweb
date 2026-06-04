@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server'
 import { decrypt } from '@/lib/session'
 
 // Public paths that don't require authentication
-const PUBLIC_PATHS = ['/login']
+const PUBLIC_PATHS = ['/login', '/register']
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl

@@ -101,7 +101,7 @@ function ProductForm({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
         <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-xl max-h-screen overflow-y-auto border border-gray-200 dark:border-gray-700">
           <div className="p-4 border-b border-gray-100 dark:border-gray-700">
             <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -263,7 +263,7 @@ function DeleteModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-sm shadow-xl p-5">
         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Delete Product?</h3>
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">

@@ -15,6 +15,7 @@ export async function GET() {
   const { data: products, error } = await supabaseAdmin
     .from('products')
     .select('*')
+    .eq('store_id', session.userId)
     .order('name')
 
   if (error) {
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     cost_price: Number(cost_price),
     selling_price: Number(selling_price),
     category: category || null,
+    store_id: session.userId,
   })
 
   if (error) {
@@ -56,6 +58,7 @@ export async function POST(request: Request) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Product Added',
     description: `Product "${name}" was added to inventory.`,
+    store_id: session.userId,
   })
 
   return NextResponse.json({ success: true })

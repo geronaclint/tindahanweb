@@ -14,6 +14,7 @@ export async function GET() {
   const { data: sales, error } = await supabaseAdmin
     .from('sales')
     .select('*, sale_items(count)')
+    .eq('store_id', session.userId)
     .order('created_at', { ascending: false })
 
   if (error) {

@@ -403,7 +403,7 @@ export default function InventoryPage() {
                       {product.selling_price.toFixed(2)}
                     </td>
                     <td className="px-3 py-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${status.color}`}>
                         {status.label}
                       </span>
                     </td>

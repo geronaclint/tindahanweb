@@ -2,12 +2,18 @@
  * Activity Logs Page — server rendered, shows all tracked actions
  */
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
+import { redirect } from 'next/navigation'
 
 export default async function LogsPage() {
+  const session = await getSession()
+  if (!session) redirect('/login')
+
   // Fetch all logs, newest first
   const { data: logs } = await supabaseAdmin
     .from('activity_logs')
     .select('*')
+    .eq('store_id', session.userId)
     .order('created_at', { ascending: false })
     .limit(500)
 

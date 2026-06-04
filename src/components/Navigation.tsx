@@ -20,30 +20,14 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
-
-  // Initialize dark mode from localStorage
+  // INITIAL_THEME is handled in Settings or _app typically. 
+  // For now keep the initialization here so dark mode stays persistent
   useEffect(() => {
     const saved = localStorage.getItem('theme')
     if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDarkMode(true)
       document.documentElement.classList.add('dark')
     }
   }, [])
-
-  function toggleDarkMode() {
-    setIsDarkMode((prev) => {
-      const next = !prev
-      if (next) {
-        document.documentElement.classList.add('dark')
-        localStorage.setItem('theme', 'dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-        localStorage.setItem('theme', 'light')
-      }
-      return next
-    })
-  }
 
   function handleLogoutConfim() {
     setShowLogoutModal(false)
@@ -93,15 +77,7 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
 
         {/* Footer Actions */}
         <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-2">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors flex justify-between items-center"
-          >
-            <span>{isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
-            <span className="text-xs text-gray-400">{isDarkMode ? 'ON' : 'OFF'}</span>
-          </button>
-          
+
           {/* Logout */}
           <button
             onClick={() => setShowLogoutModal(true)}
@@ -121,31 +97,23 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
             <Link
               key={link.href}
               href={link.href}
-              className={`flex-1 flex flex-col items-center justify-center py-2 text-xs font-medium transition-colors ${
-                isActive ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+              className={`flex-1 flex flex-col items-center justify-center py-1.5 font-medium transition-colors ${
+                isActive ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
               }`}
             >
-              <span className="text-lg leading-none">{link.label.split(' ')[0]}</span>
-              <span className="mt-0.5">{link.title}</span>
+              <span className="text-xl leading-none mb-1">{link.label.split(' ')[0]}</span>
+              <span className="text-[10px] truncate w-full text-center">{link.label.split(' ')[1]}</span>
             </Link>
           )
         })}
-        {/* Mobile Settings dropdown toggle (Replaces raw logout for real estate) */}
-        <button
-          onClick={toggleDarkMode}
-          className="flex-1 flex flex-col items-center justify-center py-2 text-xs text-gray-500 hover:text-gray-700  dark:text-gray-400 dark:hover:text-gray-200 font-medium"
-        >
-          <span className="text-lg leading-none">{isDarkMode ? '🌙' : '☀️'}</span>
-          <span className="mt-0.5">Theme</span>
-        </button>
-        
+
         <button
           onClick={() => setShowLogoutModal(true)}
           disabled={isPending}
-          className="flex-1 flex flex-col items-center justify-center py-2 text-xs text-red-500 font-medium"
+          className="flex-1 flex flex-col items-center justify-center py-1.5 text-xs text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-900/10"
         >
-          <span className="text-lg leading-none">🚪</span>
-          <span className="mt-0.5">Logout</span>
+          <span className="text-xl leading-none mb-1">🚪</span>
+          <span className="text-[10px] truncate w-full text-center">Logout</span>
         </button>
       </nav>
 

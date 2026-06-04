@@ -14,6 +14,7 @@ export async function GET() {
   const { data: products } = await supabaseAdmin
     .from('products')
     .select('quantity, cost_price, selling_price')
+    .eq('store_id', session.userId)
 
   const totalProducts = products?.length ?? 0
 
@@ -31,6 +32,7 @@ export async function GET() {
   const { data: todaySales } = await supabaseAdmin
     .from('sales')
     .select('total_amount')
+    .eq('store_id', session.userId)
     .gte('created_at', todayStart.toISOString())
 
   const totalSalesToday = todaySales?.reduce((sum, s) => sum + s.total_amount, 0) ?? 0
@@ -43,6 +45,7 @@ export async function GET() {
   const { data: monthSales } = await supabaseAdmin
     .from('sales')
     .select('total_amount')
+    .eq('store_id', session.userId)
     .gte('created_at', monthStart.toISOString())
 
   const totalSalesMonth = monthSales?.reduce((sum, s) => sum + s.total_amount, 0) ?? 0

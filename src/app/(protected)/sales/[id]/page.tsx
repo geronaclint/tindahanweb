@@ -3,14 +3,18 @@
  * Shows full details of a single sale including all items sold
  */
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export default async function TransactionPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
+  const session = await getSession()
+  if (!session) redirect('/login')
+
   const { id } = await params
 
   // Fetch the sale record
@@ -18,6 +22,7 @@ export default async function TransactionPage({
     .from('sales')
     .select('*')
     .eq('id', id)
+    .eq('store_id', session.userId)
     .single()
 
   if (!sale) notFound()

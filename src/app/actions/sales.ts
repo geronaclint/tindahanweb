@@ -39,6 +39,7 @@ export async function completeSale(cartItems: CartItem[]) {
     .insert({
       transaction_number: transactionNumber,
       total_amount: totalAmount,
+      store_id: session.userId,
     })
     .select()
     .single()
@@ -70,6 +71,7 @@ export async function completeSale(cartItems: CartItem[]) {
         updated_at: new Date().toISOString(),
       })
       .eq('id', item.product.id)
+      .eq('store_id', session.userId)
 
     if (stockError) {
       return { error: `Failed to deduct stock for "${item.product.name}".` }
@@ -81,6 +83,7 @@ export async function completeSale(cartItems: CartItem[]) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Sale Completed',
     description: `Transaction ${transactionNumber} — ₱${totalAmount.toFixed(2)} — Items: ${itemNames}`,
+    store_id: session.userId,
   })
 
   // Revalidate pages that show inventory/sales data

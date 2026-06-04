@@ -16,7 +16,7 @@ async function requireAuth() {
 
 // Add a new product to inventory
 export async function addProduct(formData: FormData) {
-  await requireAuth()
+  const session = await requireAuth()
 
   const barcode = formData.get('barcode') as string
   const name = formData.get('name') as string
@@ -37,6 +37,7 @@ export async function addProduct(formData: FormData) {
     cost_price,
     selling_price,
     category: category || null,
+    store_id: session.userId,
   })
 
   if (error) {
@@ -51,6 +52,7 @@ export async function addProduct(formData: FormData) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Product Added',
     description: `Product "${name}" was added to inventory.`,
+    store_id: session.userId,
   })
 
   revalidatePath('/inventory')
@@ -59,7 +61,7 @@ export async function addProduct(formData: FormData) {
 
 // Update an existing product
 export async function updateProduct(id: string, formData: FormData) {
-  await requireAuth()
+  const session = await requireAuth()
 
   const barcode = formData.get('barcode') as string
   const name = formData.get('name') as string
@@ -84,6 +86,7 @@ export async function updateProduct(id: string, formData: FormData) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
+    .eq('store_id', session.userId)
 
   if (error) {
     return { error: 'Failed to update product. Please try again.' }
@@ -92,6 +95,7 @@ export async function updateProduct(id: string, formData: FormData) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Product Updated',
     description: `Product "${name}" was updated.`,
+    store_id: session.userId,
   })
 
   revalidatePath('/inventory')
@@ -100,12 +104,13 @@ export async function updateProduct(id: string, formData: FormData) {
 
 // Delete a product by ID
 export async function deleteProduct(id: string, name: string) {
-  await requireAuth()
+  const session = await requireAuth()
 
   const { error } = await supabaseAdmin
     .from('products')
     .delete()
     .eq('id', id)
+    .eq('store_id', session.userId)
 
   if (error) {
     return { error: 'Failed to delete product.' }
@@ -114,6 +119,7 @@ export async function deleteProduct(id: string, name: string) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Product Deleted',
     description: `Product "${name}" was deleted from inventory.`,
+    store_id: session.userId,
   })
 
   revalidatePath('/inventory')

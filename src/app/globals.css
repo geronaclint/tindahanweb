@@ -5,10 +5,17 @@
   box-sizing: border-box;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   background-color: #f9fafb;
   color: #111827;
   min-height: 100vh;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
 /* Make all inputs and buttons large enough for touch targets (48px min) */

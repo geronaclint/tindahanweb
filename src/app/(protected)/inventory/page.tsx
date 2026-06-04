@@ -16,13 +16,14 @@ function getStockStatus(qty: number): { label: string; color: string } {
   return { label: 'In Stock', color: 'bg-green-100 text-green-700' }
 }
 
-// ─── Product Form (Add or Edit) ──────────────────────────────────────────────
 function ProductForm({
   product,
+  existingCategories,
   onClose,
   onSaved,
 }: {
   product?: Product | null
+  existingCategories: string[]
   onClose: () => void
   onSaved: () => void
 }) {
@@ -148,10 +149,16 @@ function ProductForm({
               <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
               <input
                 name="category"
+                list="category-suggestions"
                 defaultValue={product?.category || ''}
                 placeholder="e.g. Beverages, Snacks"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
+              <datalist id="category-suggestions">
+                {existingCategories.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
 
             {/* Quantity */}
@@ -286,6 +293,9 @@ export default function InventoryPage() {
   const [deleteModal, setDeleteModal] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Compute unique categories for suggestion
+  const existingCategories = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[]
+
   async function loadProducts() {
     setLoading(true)
     const res = await fetch('/api/products')
@@ -418,6 +428,7 @@ export default function InventoryPage() {
       {/* Modals */}
       {showAddForm && (
         <ProductForm
+          existingCategories={existingCategories}
           onClose={() => setShowAddForm(false)}
           onSaved={loadProducts}
         />
@@ -425,6 +436,7 @@ export default function InventoryPage() {
       {editProduct && (
         <ProductForm
           product={editProduct}
+          existingCategories={existingCategories}
           onClose={() => setEditProduct(null)}
           onSaved={loadProducts}
         />

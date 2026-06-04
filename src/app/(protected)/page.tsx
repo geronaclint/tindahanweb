@@ -13,9 +13,9 @@ import BarcodeScanner from '@/components/BarcodeScanner'
 // ─── Dashboard Stats Card ───────────────────────────────────────────────────
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className={`bg-white rounded-lg p-3 border-l-4 ${color} shadow-sm`}>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-lg font-bold text-gray-800 mt-0.5">{value}</p>
+    <div className={`bg-white dark:bg-gray-800 rounded-xl p-3 border-l-4 ${color} shadow-sm border border-gray-100 dark:border-gray-700`}>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="text-lg font-bold text-gray-800 dark:text-gray-100 mt-0.5">{value}</p>
     </div>
   )
 }
@@ -32,12 +32,12 @@ function ProductRow({
   const isLowStock = product.quantity > 0 && product.quantity <= 5
 
   return (
-    <div className="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50">
+    <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-        <p className="text-xs text-gray-500">
+        <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{product.name}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           ₱{product.selling_price.toFixed(2)} &bull;{' '}
-          <span className={isOutOfStock ? 'text-red-600' : isLowStock ? 'text-yellow-600' : 'text-green-600'}>
+          <span className={isOutOfStock ? 'text-red-500' : isLowStock ? 'text-yellow-500' : 'text-green-500'}>
             {isOutOfStock ? 'Out of Stock' : `${product.quantity} in stock`}
           </span>
         </p>
@@ -45,7 +45,7 @@ function ProductRow({
       <button
         onClick={() => onAdd(product)}
         disabled={isOutOfStock}
-        className="ml-3 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 flex-shrink-0"
+        className="ml-3 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 flex-shrink-0"
       >
         Add
       </button>
@@ -68,40 +68,40 @@ function CartRow({
   const subtotal = item.product.selling_price * item.quantity
 
   return (
-    <div className="flex items-center py-2 border-b border-gray-100 gap-2">
+    <div className="flex items-center py-3 border-b border-gray-100 dark:border-gray-700 gap-2">
       {/* Product info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">{item.product.name}</p>
-        <p className="text-xs text-gray-500">₱{item.product.selling_price.toFixed(2)} each</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.product.name}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">₱{item.product.selling_price.toFixed(2)} each</p>
       </div>
 
       {/* Quantity controls */}
       <div className="flex items-center gap-1 flex-shrink-0">
         <button
           onClick={onDecrease}
-          className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300"
+          className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-gray-900 dark:text-white font-bold hover:bg-gray-300 dark:hover:bg-gray-600"
         >
           −
         </button>
-        <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+        <span className="w-8 text-center text-sm font-semibold dark:text-white">{item.quantity}</span>
         <button
           onClick={onIncrease}
           disabled={item.quantity >= item.product.quantity}
-          className="w-7 h-7 flex items-center justify-center bg-gray-200 rounded text-gray-700 font-bold hover:bg-gray-300 disabled:opacity-40"
+          className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-gray-900 dark:text-white font-bold hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-40"
         >
           +
         </button>
       </div>
 
       {/* Subtotal */}
-      <div className="text-right flex-shrink-0 w-20">
-        <p className="text-sm font-semibold text-gray-900">₱{subtotal.toFixed(2)}</p>
+      <div className="text-right flex-shrink-0 w-24">
+        <p className="text-sm font-bold text-gray-900 dark:text-white">₱{subtotal.toFixed(2)}</p>
       </div>
 
       {/* Remove */}
       <button
         onClick={onRemove}
-        className="text-red-400 hover:text-red-600 flex-shrink-0 px-1"
+        className="text-red-400 hover:text-red-500 flex-shrink-0 px-2 py-1 text-lg font-bold"
         aria-label="Remove item"
       >
         ✕
@@ -441,14 +441,14 @@ export default function POSPage() {
   return (
     <div className="p-4">
       {/* Page Title */}
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-gray-900">Point of Sale</h1>
-        <p className="text-xs text-gray-500">Search products, scan barcodes, complete sales</p>
+      <div className="mb-4 text-center md:text-left">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Point of Sale</h1>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Search products, scan barcodes, complete sales</p>
       </div>
 
       {/* Dashboard Stats */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
           <StatCard label="Total Products" value={stats.totalProducts.toString()} color="border-blue-500" />
           <StatCard label="Inventory Value" value={`₱${stats.totalInventoryValue.toFixed(0)}`} color="border-purple-500" />
           <StatCard label="Sales Today" value={`₱${stats.totalSalesToday.toFixed(0)}`} color="border-green-500" />
@@ -456,25 +456,77 @@ export default function POSPage() {
           <StatCard
             label="Low Stock Items"
             value={stats.lowStockCount.toString()}
-            color={stats.lowStockCount > 0 ? 'border-red-500' : 'border-gray-300'}
+            color={stats.lowStockCount > 0 ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'}
           />
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* ── Left: Product Search ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-3 border-b border-gray-100 flex gap-2">
+      {/* Main Grid: On mobile, cart is first (order-1), search is second (order-2). On md/desktop, layout is standard. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* ── Right: Shopping Cart (Shown First on Mobile) ── */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col order-1 lg:order-2">
+          <div className="p-3 border-b border-gray-100 dark:border-gray-700 text-center lg:text-left">
+            <h2 className="font-semibold text-gray-900 dark:text-white text-lg">
+              🛒 Current Sale {cart.length > 0 && <span className="text-blue-600 dark:text-blue-400">({cart.length} items)</span>}
+            </h2>
+          </div>
+
+          {/* Cart Items */}
+          <div className="flex-1 overflow-y-auto max-h-72 px-3">
+            {cart.length === 0 ? (
+              <p className="py-12 text-gray-400 text-sm text-center">Cart is empty. Scan an item below.</p>
+            ) : (
+              cart.map((item) => (
+                <CartRow
+                  key={item.product.id}
+                  item={item}
+                  onIncrease={() => increaseQty(item.product.id)}
+                  onDecrease={() => decreaseQty(item.product.id)}
+                  onRemove={() => removeFromCart(item.product.id)}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Total and Actions */}
+          <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
+            <div className="flex justify-between items-center mb-4 px-2">
+              <span className="font-semibold text-gray-500 dark:text-gray-400 tracking-wider">TOTAL AMOUNT</span>
+              <span className="text-4xl font-bold text-gray-900 dark:text-white">₱{cartTotal.toFixed(2)}</span>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCart([])}
+                disabled={cart.length === 0}
+                className="flex-[0.5] py-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Clear
+              </button>
+              <button
+                onClick={handleCompleteSale}
+                disabled={cart.length === 0 || saleLoading}
+                className="flex-1 py-4 bg-green-600 text-white rounded-xl text-lg font-bold disabled:opacity-40 hover:bg-green-700 shadow-lg shadow-green-600/20"
+              >
+                {saleLoading ? 'Processing...' : '💳 Pay Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Left: Product Search (Shown Second on Mobile) ── */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden order-2 lg:order-1">
+          <div className="p-3 border-b border-gray-100 dark:border-gray-700 flex gap-2">
             <input
               type="text"
               placeholder="Search by name or barcode..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
             />
             <button
               onClick={() => setShowScanner(true)}
-              className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-800 flex-shrink-0"
+              className="px-4 py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-bold hover:bg-gray-900 flex-shrink-0"
               title="Scan Barcode"
             >
               📷 Scan
@@ -490,62 +542,13 @@ export default function POSPage() {
               <ProductRow key={product.id} product={product} onAdd={addToCart} />
             ))}
             {!searchQuery && (
-              <p className="p-4 text-gray-400 text-sm text-center">
-                Type a product name or barcode to search
+              <p className="p-8 text-gray-400 text-sm text-center">
+                Type a product name or barcode to see inventory
               </p>
             )}
           </div>
         </div>
 
-        {/* ── Right: Shopping Cart ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
-          <div className="p-3 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">
-              🛒 Cart {cart.length > 0 && <span className="text-blue-600">({cart.length} items)</span>}
-            </h2>
-          </div>
-
-          {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto max-h-72 px-3">
-            {cart.length === 0 ? (
-              <p className="py-8 text-gray-400 text-sm text-center">Cart is empty</p>
-            ) : (
-              cart.map((item) => (
-                <CartRow
-                  key={item.product.id}
-                  item={item}
-                  onIncrease={() => increaseQty(item.product.id)}
-                  onDecrease={() => decreaseQty(item.product.id)}
-                  onRemove={() => removeFromCart(item.product.id)}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Total and Actions */}
-          <div className="p-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-semibold text-gray-700">TOTAL</span>
-              <span className="text-2xl font-bold text-gray-900">₱{cartTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCart([])}
-                disabled={cart.length === 0}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-gray-100"
-              >
-                Clear Cart
-              </button>
-              <button
-                onClick={handleCompleteSale}
-                disabled={cart.length === 0 || saleLoading}
-                className="flex-1 py-3 bg-green-600 text-white rounded-lg text-sm font-bold disabled:opacity-40 hover:bg-green-700"
-              >
-                {saleLoading ? 'Processing...' : '✅ Complete Sale'}
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Barcode Scanner Modal */}

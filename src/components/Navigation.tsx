@@ -6,7 +6,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
-import { useTransition } from 'react'
+import { useTransition, useState, useEffect } from 'react'
 
 const navLinks = [
   { href: '/', label: '🏪 POS', title: 'Point of Sale' },
@@ -18,8 +18,34 @@ const navLinks = [
 export default function Navigation() {
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
-  function handleLogout() {
+  // Initialize dark mode from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDarkMode(true)
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  function toggleDarkMode() {
+    setIsDarkMode((prev) => {
+      const next = !prev
+      if (next) {
+        document.documentElement.classList.add('dark')
+        localStorage.setItem('theme', 'dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+        localStorage.setItem('theme', 'light')
+      }
+      return next
+    })
+  }
+
+  function handleLogoutConfim() {
+    setShowLogoutModal(false)
     startTransition(async () => {
       await logout()
     })
@@ -28,11 +54,11 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-52 bg-white border-r border-gray-200 min-h-screen fixed top-0 left-0 z-10">
+      <aside className="hidden md:flex flex-col w-52 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 min-h-screen fixed top-0 left-0 z-10 transition-colors">
         {/* Logo */}
-        <div className="p-4 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-blue-700">🛒 Tindahan POS</h1>
-          <p className="text-xs text-gray-400 mt-0.5">Store Management</p>
+        <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+          <h1 className="text-lg font-bold text-blue-700 dark:text-blue-400">🛒 Tindahan POS</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Store Management</p>
         </div>
 
         {/* Nav Links */}
@@ -46,8 +72,8 @@ export default function Navigation() {
                 title={link.title}
                 className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
                 }`}
               >
                 {link.label}
@@ -56,20 +82,30 @@ export default function Navigation() {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className="p-3 border-t border-gray-100">
+        {/* Footer Actions */}
+        <div className="p-3 border-t border-gray-100 dark:border-gray-800 space-y-2">
+          {/* Dark Mode Toggle */}
           <button
-            onClick={handleLogout}
-            disabled={isPending}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 font-medium transition-colors disabled:opacity-50"
+            onClick={toggleDarkMode}
+            className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors flex justify-between items-center"
           >
-            {isPending ? '...' : '🚪 Logout'}
+            <span>{isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+            <span className="text-xs text-gray-400">{isDarkMode ? 'ON' : 'OFF'}</span>
+          </button>
+          
+          {/* Logout */}
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            disabled={isPending}
+            className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-colors disabled:opacity-50"
+          >
+            {isPending ? 'Logging out...' : '🚪 Logout'}
           </button>
         </div>
       </aside>
 
       {/* Mobile bottom navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 flex">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10 flex">
         {navLinks.map((link) => {
           const isActive = pathname === link.href
           return (
@@ -77,7 +113,7 @@ export default function Navigation() {
               key={link.href}
               href={link.href}
               className={`flex-1 flex flex-col items-center justify-center py-2 text-xs font-medium transition-colors ${
-                isActive ? 'text-blue-700 bg-blue-50' : 'text-gray-500 hover:text-gray-700'
+                isActive ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
               <span className="text-lg leading-none">{link.label.split(' ')[0]}</span>
@@ -85,9 +121,17 @@ export default function Navigation() {
             </Link>
           )
         })}
-        {/* Mobile logout button */}
+        {/* Mobile Settings dropdown toggle (Replaces raw logout for real estate) */}
         <button
-          onClick={handleLogout}
+          onClick={toggleDarkMode}
+          className="flex-1 flex flex-col items-center justify-center py-2 text-xs text-gray-500 hover:text-gray-700  dark:text-gray-400 dark:hover:text-gray-200 font-medium"
+        >
+          <span className="text-lg leading-none">{isDarkMode ? '🌙' : '☀️'}</span>
+          <span className="mt-0.5">Theme</span>
+        </button>
+        
+        <button
+          onClick={() => setShowLogoutModal(true)}
           disabled={isPending}
           className="flex-1 flex flex-col items-center justify-center py-2 text-xs text-red-500 font-medium"
         >
@@ -95,6 +139,32 @@ export default function Navigation() {
           <span className="mt-0.5">Logout</span>
         </button>
       </nav>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-5 w-full max-w-sm shadow-xl">
+            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Confirm Logout</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-5">
+              Are you sure you want to completely log out of the POS system?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogoutConfim}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700"
+              >
+                {isPending ? 'Logging Out...' : 'Yes, Logout'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

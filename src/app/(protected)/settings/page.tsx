@@ -5,6 +5,7 @@ import { updateSettings } from '@/app/actions/settings'
 
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [photoBase64, setPhotoBase64] = useState('')
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -23,13 +24,14 @@ export default function SettingsPage() {
       setIsDarkMode(true)
     }
 
-    // Current Store Name
+    // Current Store Name + Email
     const fetchUser = async () => {
       try {
         const res = await fetch('/api/settings/me')
         if (res.ok) {
           const data = await res.json()
           if (data.username) setStoreName(data.username)
+          if (data.email) setEmail(data.email)
           if (data.profile_photo) setPhotoBase64(data.profile_photo)
         }
       } catch (err) {}
@@ -191,6 +193,22 @@ export default function SettingsPage() {
                     onChange={handleImageUpload}
                     className="hidden"
                   />
+                </div>
+              </div>
+
+              {/* Email (Read-Only) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email <span className="text-xs text-gray-400 dark:text-gray-500">(read-only)</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs">🔒</span>
                 </div>
               </div>
 

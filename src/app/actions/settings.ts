@@ -14,7 +14,7 @@ export async function updateSettings(formData: FormData) {
 
   if (!newName) return { error: 'Store name is required' }
 
-  const updates: any = {
+  const updates: Record<string, string> = {
     username: newName.trim(),
   }
 
@@ -47,6 +47,7 @@ export async function updateSettings(formData: FormData) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Settings Updated',
     description: `Store settings were modified.`,
+    store_id: session.userId,
   })
 
   return { success: true }

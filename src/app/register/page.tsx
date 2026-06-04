@@ -31,6 +31,7 @@ export default function RegisterPage() {
         setTimeout(() => (window.location.href = '/login'), 1500)
       }
     })
+
   }
 
   return (
@@ -56,6 +57,20 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                 Store Name
@@ -99,6 +114,7 @@ export default function RegisterPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
 
             <button
               type="submit"

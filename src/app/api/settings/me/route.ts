@@ -9,7 +9,7 @@ export async function GET() {
   // Safely fetch user trying to get profile photo (fails gracefully if column doesn't exist)
   const { data: user, error } = await supabaseAdmin
     .from('users')
-    .select('username, profile_photo')
+    .select('username, email, profile_photo')
     .eq('id', session.userId)
     .maybeSingle()
 
@@ -18,8 +18,11 @@ export async function GET() {
     return NextResponse.json({ username: session.username })
   }
 
+
   return NextResponse.json({ 
     username: user.username,
+    email: user.email,
     profile_photo: user.profile_photo || null 
   })
+
 }

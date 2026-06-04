@@ -7,8 +7,10 @@
 -- Stores the single admin account
 CREATE TABLE IF NOT EXISTS users (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  username       TEXT NOT NULL UNIQUE,
-  password_hash  TEXT NOT NULL,        -- bcrypt hash, NEVER store plain text
+  email          TEXT NOT NULL UNIQUE,   -- login identifier
+  username       TEXT NOT NULL UNIQUE,   -- store name / display name
+  password_hash  TEXT NOT NULL,          -- bcrypt hash, NEVER store plain text
+  profile_photo  TEXT,                   -- base64-encoded avatar (optional)
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -68,8 +70,9 @@ CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created
 -- Password: admin123 (bcrypt hash - 10 rounds)
 -- Generate fresh hash: SELECT crypt('admin123', gen_salt('bf', 10))
 -- ============================================================
-INSERT INTO users (username, password_hash)
+INSERT INTO users (email, username, password_hash)
 VALUES (
+  'admin@tindahan.pos',
   'admin',
   '$2b$10$Vg0sGUvAnEQFuyLGjWUdQO68FqoL3u.rEG20fXLM5gTnn2pZlILD2'  -- admin123
 )

@@ -18,8 +18,9 @@ export default async function ProtectedLayout({
   // Safely attempt to read profile photo (fail gracefully if column missing)
   const { data: user } = await supabaseAdmin
     .from('users')
-    .select('username, profile_photo')
+    .select('username, email, profile_photo')
     .eq('id', session.userId)
+
     .maybeSingle()
     
   const storeName = user?.username || session.username

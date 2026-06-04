@@ -74,7 +74,7 @@ export default function SalesPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
         />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">From</label>
             <input

@@ -43,6 +43,7 @@ export async function login(formData: FormData) {
   await supabaseAdmin.from('activity_logs').insert({
     action: 'Login',
     description: `User "${user.username}" logged in.`,
+    store_id: user.id,
   })
 
   // Redirect to the POS (homepage)
@@ -53,4 +54,47 @@ export async function login(formData: FormData) {
 export async function logout() {
   await deleteSession()
   redirect('/login')
+}
+
+// Register: create a new store account
+export async function register(formData: FormData) {
+  const username = (formData.get('username') as string)?.trim()
+  const password = formData.get('password') as string
+
+  if (!username || !password) {
+    return { error: 'Store name and password are required.' }
+  }
+
+  if (username.length < 2) {
+    return { error: 'Store name must be at least 2 characters.' }
+  }
+
+  if (password.length < 6) {
+    return { error: 'Password must be at least 6 characters.' }
+  }
+
+  // Check if store name is already taken
+  const { data: existing } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('username', username)
+    .maybeSingle()
+
+  if (existing) {
+    return { error: 'This store name is already taken. Please choose another.' }
+  }
+
+  // Hash password and create user
+  const password_hash = await bcrypt.hash(password, 10)
+
+  const { error } = await supabaseAdmin.from('users').insert({
+    username,
+    password_hash,
+  })
+
+  if (error) {
+    return { error: 'Failed to create account. Please try again.' }
+  }
+
+  return { success: true }
 }

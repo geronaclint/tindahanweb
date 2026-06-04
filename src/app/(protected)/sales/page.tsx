@@ -74,8 +74,8 @@ export default function SalesPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
         />
-        <div className="flex gap-2">
-          <div className="flex-1">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">From</label>
             <input
               type="date"
@@ -84,7 +84,7 @@ export default function SalesPage() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
             />
           </div>
-          <div className="flex-1">
+          <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">To</label>
             <input
               type="date"
@@ -93,17 +93,15 @@ export default function SalesPage() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
             />
           </div>
-          {(dateFrom || dateTo || search) && (
-            <div className="flex items-end">
-              <button
-                onClick={() => { setSearch(''); setDateFrom(''); setDateTo('') }}
-                className="px-3 py-2 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-              >
-                Clear
-              </button>
-            </div>
-          )}
         </div>
+        {(dateFrom || dateTo || search) && (
+          <button
+            onClick={() => { setSearch(''); setDateFrom(''); setDateTo('') }}
+            className="w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            Clear Filters
+          </button>
+        )}
       </div>
 
       {/* Summary */}

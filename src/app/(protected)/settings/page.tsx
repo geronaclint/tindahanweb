@@ -2,6 +2,8 @@
 
 import { useState, useTransition, useEffect, useRef } from 'react'
 import { updateSettings } from '@/app/actions/settings'
+import Cropper from 'react-easy-crop'
+import { getCroppedImg } from '@/lib/cropImage'
 
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState('')
@@ -9,6 +11,12 @@ export default function SettingsPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [photoBase64, setPhotoBase64] = useState('')
+
+  // Crop state
+  const [rawImage, setRawImage] = useState('')
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
   
   const [loadingInitial, setLoadingInitial] = useState(true)
@@ -55,7 +63,7 @@ export default function SettingsPage() {
     })
   }
 
-  // 2. Handle image upload and resize to base64
+  // 2. Handle image upload and open cropper
   function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -64,36 +72,27 @@ export default function SettingsPage() {
 
     const reader = new FileReader()
     reader.onload = (event) => {
-      const img = new Image()
-      img.onload = () => {
-        // Resize canvas
-        const canvas = document.createElement('canvas')
-        const MAX_WIDTH = 256
-        const MAX_HEIGHT = 256
-        let width = img.width
-        let height = img.height
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width
-            width = MAX_WIDTH
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height
-            height = MAX_HEIGHT
-          }
-        }
-        canvas.width = width
-        canvas.height = height
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, width, height)
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8) // Quality 0.8
-        setPhotoBase64(dataUrl)
-      }
-      img.src = event.target?.result as string
+      setRawImage(event.target?.result as string)
     }
     reader.readAsDataURL(file)
+    // Clear input
+    e.target.value = ''
+  }
+
+  const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }
+
+  const applyCrop = async () => {
+    try {
+      if (rawImage && croppedAreaPixels) {
+        const croppedImage = await getCroppedImg(rawImage, croppedAreaPixels)
+        setPhotoBase64(croppedImage)
+        setRawImage('')
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   // 3. Submit updates
@@ -265,6 +264,59 @@ export default function SettingsPage() {
 
         </section>
       </div>
+
+      {/* Cropper Modal */}
+      {rawImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md h-[450px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="relative flex-1 bg-gray-900">
+              <Cropper
+                image={rawImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+            
+            {/* Range slider for zoom */}
+            <div className="px-5 pt-3 pb-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+              <p className="text-xs text-center text-gray-500 mb-2">Zoom</p>
+              <input 
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-labelledby="Zoom"
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" 
+              />
+            </div>
+
+            <div className="p-4 bg-white dark:bg-gray-900 flex justify-between gap-3 shrink-0 border-t border-gray-100 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => setRawImage('')}
+                className="flex-1 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={applyCrop}
+                className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+              >
+                Apply Crop
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

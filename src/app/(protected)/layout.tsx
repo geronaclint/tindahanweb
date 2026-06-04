@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <Navigation />
+      <Navigation storeName={session?.username} />
 
       {/* Main content area — offset by sidebar width on desktop */}
       <main className="flex-1 md:ml-52 pb-20 md:pb-0">

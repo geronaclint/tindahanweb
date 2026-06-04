@@ -15,7 +15,7 @@ const navLinks = [
   { href: '/logs', label: '📋 Logs', title: 'Activity Logs' },
 ]
 
-export default function Navigation() {
+export default function Navigation({ storeName }: { storeName?: string }) {
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -57,7 +57,7 @@ export default function Navigation() {
       <aside className="hidden md:flex flex-col w-52 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 min-h-screen fixed top-0 left-0 z-10 transition-colors">
         {/* Logo */}
         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-          <h1 className="text-lg font-bold text-blue-700 dark:text-blue-400">🛒 Tindahan POS</h1>
+          <h1 className="text-lg font-bold text-blue-700 dark:text-blue-400 truncate">🛒 {storeName || 'Tindahan POS'}</h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Store Management</p>
         </div>
 

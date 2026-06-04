@@ -153,7 +153,13 @@ function AddFromBarcodeModal({
         } catch (e) { /* ignore */ }
       }
 
-      if (foundName) setNameLookup(foundName)
+      if (foundName) {
+        const casedName = foundName
+          .split(' ')
+          .map((w: string) => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : '')
+          .join(' ')
+        setNameLookup(casedName)
+      }
       setIsFetchingInfo(false)
     }
     fetchName()
@@ -464,8 +470,8 @@ export default function POSPage() {
       {/* Main Grid: On mobile, cart is first (order-1), search is second (order-2). On md/desktop, layout is standard. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* ── Right: Shopping Cart (Shown First on Mobile) ── */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col order-1 lg:order-2">
+        {/* ── Right: Shopping Cart ── */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col order-2">
           <div className="p-3 border-b border-gray-100 dark:border-gray-700 text-center lg:text-left">
             <h2 className="font-semibold text-gray-900 dark:text-white text-lg">
               🛒 Current Sale {cart.length > 0 && <span className="text-blue-600 dark:text-blue-400">({cart.length} items)</span>}
@@ -514,8 +520,8 @@ export default function POSPage() {
           </div>
         </div>
 
-        {/* ── Left: Product Search (Shown Second on Mobile) ── */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden order-2 lg:order-1">
+        {/* ── Left: Product Search ── */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden order-1">
           <div className="p-3 border-b border-gray-100 dark:border-gray-700 flex gap-2">
             <input
               type="text"

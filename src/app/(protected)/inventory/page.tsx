@@ -64,7 +64,13 @@ function ProductForm({
         } catch (e) { /* ignore */ }
       }
 
-      if (foundName) setNameLookup(foundName)
+      if (foundName) {
+        const casedName = foundName
+          .split(' ')
+          .map((w: string) => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : '')
+          .join(' ')
+        setNameLookup(casedName)
+      }
       setIsFetchingInfo(false)
     }
     fetchName()
@@ -330,8 +336,8 @@ export default function InventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-xs text-gray-500">{products.length} products</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Inventory</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{products.length} products</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
@@ -348,12 +354,12 @@ export default function InventoryPage() {
           placeholder="Search by name, barcode, or category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 table-container">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 table-container">
         {loading ? (
           <p className="p-8 text-center text-gray-400 text-sm">Loading products...</p>
         ) : filteredProducts.length === 0 ? (
@@ -362,38 +368,38 @@ export default function InventoryPage() {
           </p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
               <tr>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 text-xs">Barcode</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 text-xs">Product Name</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 text-xs">Qty</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 text-xs">Cost (₱)</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 text-xs">Price (₱)</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600 text-xs">Status</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600 text-xs">Actions</th>
+                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Barcode</th>
+                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Product Name</th>
+                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Qty</th>
+                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Cost (₱)</th>
+                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Price (₱)</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Status</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((product) => {
                 const status = getStockStatus(product.quantity)
                 return (
-                  <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-3 py-3 text-gray-500 font-mono text-xs">
+                  <tr key={product.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-3 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
                       {product.barcode || '—'}
                     </td>
                     <td className="px-3 py-3">
-                      <p className="font-medium text-gray-900">{product.name}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
                       {product.category && (
-                        <p className="text-xs text-gray-400">{product.category}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{product.category}</p>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-right font-mono text-gray-800">
+                    <td className="px-3 py-3 text-right font-mono text-gray-800 dark:text-gray-200">
                       {product.quantity}
                     </td>
-                    <td className="px-3 py-3 text-right text-gray-600">
+                    <td className="px-3 py-3 text-right text-gray-600 dark:text-gray-300">
                       {product.cost_price.toFixed(2)}
                     </td>
-                    <td className="px-3 py-3 text-right font-medium text-gray-900">
+                    <td className="px-3 py-3 text-right font-medium text-gray-900 dark:text-white">
                       {product.selling_price.toFixed(2)}
                     </td>
                     <td className="px-3 py-3 text-center">

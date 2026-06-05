@@ -19,9 +19,14 @@ export async function getCroppedImg(
     throw new Error('No 2d context')
   }
 
-  // Set canvas size to the desired output size (which is the cropped area size)
-  canvas.width = pixelCrop.width
-  canvas.height = pixelCrop.height
+  // Set canvas size to the desired output size but capped to max 500px for profile photo
+  const MAX_SIZE = 500
+  const scale = Math.min(1, MAX_SIZE / Math.max(pixelCrop.width, pixelCrop.height))
+  const newWidth = pixelCrop.width * scale
+  const newHeight = pixelCrop.height * scale
+
+  canvas.width = newWidth
+  canvas.height = newHeight
 
   // Draw the cropped image onto the canvas
   ctx.drawImage(
@@ -32,8 +37,8 @@ export async function getCroppedImg(
     pixelCrop.height,
     0,
     0,
-    pixelCrop.width,
-    pixelCrop.height
+    newWidth,
+    newHeight
   )
 
   // As Base64 string

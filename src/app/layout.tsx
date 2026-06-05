@@ -36,6 +36,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Apply dark mode before paint to prevent flash */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var saved = localStorage.getItem('theme');
+            if (saved !== 'light') {
+              document.documentElement.classList.add('dark');
+            }
+          })();
+        ` }} />
         {/* PWA icons */}
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>

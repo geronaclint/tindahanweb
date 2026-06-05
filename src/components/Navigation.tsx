@@ -92,7 +92,7 @@ export default function Navigation({ storeName, profilePhoto, isDev }: { storeNa
   // Initialize dark mode on mount
   useEffect(() => {
     const saved = localStorage.getItem('theme')
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (saved !== 'light') {
       document.documentElement.classList.add('dark')
     }
   }, [])

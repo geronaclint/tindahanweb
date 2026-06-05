@@ -72,7 +72,7 @@ export default function LoginPage() {
   const [dark, setDark] = useState(() => {
     if (typeof window === 'undefined') return false
     const saved = localStorage.getItem('theme')
-    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const isDark = saved !== 'light'
     if (isDark) document.documentElement.classList.add('dark')
     return isDark
   })

@@ -238,9 +238,6 @@ export default function LoginPage() {
 
         <p className="text-center text-[12.5px] mt-6 animate-float-in-delay" style={{ color: 'var(--text-subtle)' }}>
           Don&apos;t have a store?{' '}
-          <Link href="/register" className="font-medium transition-colors hover:underline" style={{ color: 'var(--accent)' }}>
-            Create one
-          </Link>
         </p>
       </div>
     </div>

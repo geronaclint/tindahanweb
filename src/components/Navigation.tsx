@@ -81,8 +81,10 @@ function NavIcon({ name, className = 'w-[18px] h-[18px]' }: { name: string; clas
   }
 }
 
-export default function Navigation({ storeName, profilePhoto }: { storeName?: string, profilePhoto?: string | null }) {
+export default function Navigation({ storeName, profilePhoto, isDev }: { storeName?: string, profilePhoto?: string | null, isDev?: boolean }) {
   const pathname = usePathname()
+  const visibleLinks = navLinks.filter((l) => l.href !== '/dev' || isDev)
+  const mobileCols = visibleLinks.length + 1 // +1 for logout button
   const [isPending, startTransition] = useTransition()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   // Initialize dark mode on mount
@@ -129,7 +131,7 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
 
         {/* Nav */}
         <nav className="flex-1 px-2.5 py-3 space-y-0.5">
-          {navLinks.map((link) => {
+          {visibleLinks.map((link) => {
             const isActive = pathname === link.href
             return (
               <Link
@@ -193,8 +195,8 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
         className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
       >
-        <div className="grid grid-cols-7">
-          {navLinks.map((link) => {
+        <div className={`grid`} style={{ gridTemplateColumns: `repeat(${mobileCols}, minmax(0, 1fr))` }}>
+          {visibleLinks.map((link) => {
             const isActive = pathname === link.href
             return (
               <Link

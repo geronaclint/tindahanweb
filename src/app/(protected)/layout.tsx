@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
   // Safely attempt to read profile photo (fail gracefully if column missing)
   const { data: user } = await supabaseAdmin
     .from('users')
-    .select('username, email, profile_photo')
+    .select('username, email, profile_photo, is_dev')
     .eq('id', session.userId)
 
     .maybeSingle()
@@ -29,7 +29,7 @@ export default async function ProtectedLayout({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <Navigation storeName={storeName} profilePhoto={profilePhoto} />
+      <Navigation storeName={storeName} profilePhoto={profilePhoto} isDev={!!user?.is_dev} />
 
       {/* Main content area — offset by sidebar width on desktop */}
       <main className="flex-1 md:ml-[232px] pb-20 md:pb-0 min-w-0">

@@ -8,10 +8,19 @@ export async function GET() {
 
   const userId = session.userId
 
-  // ── Environment / system ─────────────────────────────
+  // Only developer accounts can access this
+  const { data: user } = await supabaseAdmin
+    .from('users')
+    .select('is_dev')
+    .eq('id', userId)
+    .single()
+
+  if (!user?.is_dev) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { version: nextVersion } = await import('next/package.json')
 
-  // ── Row counts ───────────────────────────────────────
   const [{ count: products }, { count: sales }, { count: saleItems }, { count: logs }] =
     await Promise.all([
       supabaseAdmin.from('products').select('*', { count: 'exact', head: true }).eq('store_id', userId),
@@ -20,7 +29,6 @@ export async function GET() {
       supabaseAdmin.from('activity_logs').select('*', { count: 'exact', head: true }).eq('store_id', userId),
     ])
 
-  // ── Recent activity (last 50) ────────────────────────
   const { data: recentActivity } = await supabaseAdmin
     .from('activity_logs')
     .select('id, action, description, created_at')
@@ -28,7 +36,6 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  // ─── Supabase connectivity check ─────────────────────
   const { status: pingStatus } = await supabaseAdmin.from('products').select('id').limit(1).maybeSingle()
 
   return NextResponse.json({

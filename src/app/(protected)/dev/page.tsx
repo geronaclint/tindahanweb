@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface DevData {
   system: { nodeVersion: string; nextVersion: string; environment: string; platform: string; appVersion: string }
@@ -10,20 +11,26 @@ interface DevData {
 }
 
 export default function DevPage() {
+  const router = useRouter()
   const [data, setData] = useState<DevData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     fetch('/api/dev')
-      .then((r) => r.json())
-      .then((d: DevData & { error?: string }) => {
+      .then(async (r) => {
+        if (r.status === 403) { router.replace('/'); return null }
+        if (!r.ok) throw new Error('Failed to load')
+        return r.json()
+      })
+      .then((d: (DevData & { error?: string }) | null) => {
+        if (!d) return
         if (d.error) { setError(d.error); return }
         setData(d)
       })
       .catch(() => setError('Failed to load developer data'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [router])
 
   if (loading) {
     return (

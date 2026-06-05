@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/',          label: 'POS',       icon: 'storefront',   title: 'Point of Sale' },
   { href: '/inventory', label: 'Inventory', icon: 'package',      title: 'Inventory' },
   { href: '/sales',     label: 'Sales',     icon: 'receipt',      title: 'Sales Records' },
+  { href: '/dev',       label: 'Dev',       icon: 'terminal',     title: 'Developer Dashboard' },
   { href: '/logs',      label: 'Logs',      icon: 'list',         title: 'Activity Logs' },
   { href: '/settings',  label: 'Settings',  icon: 'settings',     title: 'Store Profile' },
 ]
@@ -59,6 +60,13 @@ function NavIcon({ name, className = 'w-[18px] h-[18px]' }: { name: string; clas
         <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.4.6 1 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+        </svg>
+      )
+    case 'terminal':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
         </svg>
       )
     case 'logout':
@@ -185,7 +193,7 @@ export default function Navigation({ storeName, profilePhoto }: { storeName?: st
         className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)' }}
       >
-        <div className="grid grid-cols-6">
+        <div className="grid grid-cols-7">
           {navLinks.map((link) => {
             const isActive = pathname === link.href
             return (

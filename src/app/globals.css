@@ -325,3 +325,85 @@ button {
   border: 1px solid var(--border);
   border-radius: 10px;
 }
+
+/* ── Interactive animations ────────────────────────────────────── */
+
+@keyframes float-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-float-in {
+  animation: float-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-float-in-delay {
+  opacity: 0;
+  animation: float-in 400ms 100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: shake 400ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 var(--ring); }
+  70%  { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@keyframes check-draw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Floating input wrapper */
+.float-input {
+  position: relative;
+}
+.float-input .float-label {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  color: var(--text-subtle);
+  pointer-events: none;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: var(--surface);
+  padding: 0 3px;
+  border-radius: 3px;
+}
+.float-input input:focus + .float-label,
+.float-input input:not(:placeholder-shown) + .float-label,
+.float-input .float-label.floated {
+  top: 0;
+  transform: translateY(-50%) scale(0.8);
+  color: var(--text-muted);
+}
+.float-input input:focus + .float-label {
+  color: var(--accent);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.theme-toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}

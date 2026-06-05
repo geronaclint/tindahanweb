@@ -96,11 +96,11 @@ export default function SalesPage() {
             placeholder="Search by transaction number…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input pl-9"
+            className="input pl-9 min-w-0"
           />
         </div>
-        <div className="grid grid-cols-2 gap-2.5">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="min-w-0">
             <label className="field-label">From</label>
             <input
               type="date"
@@ -109,7 +109,7 @@ export default function SalesPage() {
               className="input"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="field-label">To</label>
             <input
               type="date"

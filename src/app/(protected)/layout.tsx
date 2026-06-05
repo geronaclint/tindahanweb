@@ -32,7 +32,7 @@ export default async function ProtectedLayout({
       <Navigation storeName={storeName} profilePhoto={profilePhoto} />
 
       {/* Main content area — offset by sidebar width on desktop */}
-      <main className="flex-1 md:ml-52 pb-20 md:pb-0">
+      <main className="flex-1 md:ml-[232px] pb-20 md:pb-0 min-w-0">
         {children}
       </main>
     </div>

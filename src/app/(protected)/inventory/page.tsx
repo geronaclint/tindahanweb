@@ -4,16 +4,43 @@
  */
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, useMemo } from 'react'
 import type { Product } from '@/lib/types'
 import { addProduct, updateProduct, deleteProduct } from '@/app/actions/inventory'
 import BarcodeScanner from '@/components/BarcodeScanner'
 
 // Determine stock status from quantity
-function getStockStatus(qty: number): { label: string; color: string } {
-  if (qty <= 0) return { label: 'Out of Stock', color: 'bg-red-100 text-red-700' }
-  if (qty <= 5) return { label: 'Low Stock', color: 'bg-yellow-100 text-yellow-700' }
-  return { label: 'In Stock', color: 'bg-green-100 text-green-700' }
+function getStockStatus(qty: number): { label: string; pill: 'pill-success' | 'pill-warn' | 'pill-danger' } {
+  if (qty <= 0) return { label: 'Out of stock', pill: 'pill-danger' }
+  if (qty <= 5) return { label: 'Low stock', pill: 'pill-warn' }
+  return { label: 'In stock', pill: 'pill-success' }
+}
+
+function IconPlus({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+function IconScan({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <path d="M7 12h10" />
+    </svg>
+  )
+}
+function IconSearch({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </svg>
+  )
 }
 
 function ProductForm({
@@ -31,7 +58,7 @@ function ProductForm({
   const [error, setError] = useState('')
   const [showScanner, setShowScanner] = useState(false)
   const [barcode, setBarcode] = useState(product?.barcode || '')
-  
+
   const [nameLookup, setNameLookup] = useState('')
   const [isFetchingInfo, setIsFetchingInfo] = useState(false)
 
@@ -40,7 +67,7 @@ function ProductForm({
     async function fetchName() {
       // Don't autofetch if editing an existing product or barcode is empty
       if (product || !barcode || barcode.length < 4) return
-      
+
       setIsFetchingInfo(true)
       let foundName = ''
 
@@ -101,64 +128,71 @@ function ProductForm({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-xl max-h-screen overflow-y-auto border border-gray-200 dark:border-gray-700">
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              {isEditing ? 'Edit Product' : 'Add New Product'}
+      <div className="modal-backdrop" onClick={onClose}>
+        <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 480 }}>
+          <div className="p-5 border-b" style={{ borderColor: 'var(--border)' }}>
+            <h3 className="text-base font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+              {isEditing ? 'Edit product' : 'Add product'}
             </h3>
+            <p className="text-[13px] mt-1" style={{ color: 'var(--text-muted)' }}>
+              {isEditing ? 'Update the details for this product.' : 'Add a new product to your inventory.'}
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-4 space-y-3">
+          <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
             {error && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg text-red-700 dark:text-red-400 text-sm">
+              <div
+                className="p-3 rounded-lg text-[13px]"
+                style={{ backgroundColor: 'var(--danger-soft)', color: 'var(--danger)' }}
+              >
                 {error}
               </div>
             )}
 
             {/* Barcode with scanner button */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
+              <label className="field-label">Barcode</label>
               <div className="flex gap-2">
                 <input
                   name="barcode"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
-                  placeholder="Scan or type barcode..."
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                  placeholder="Scan or type barcode…"
+                  className="input mono flex-1"
                 />
                 <button
                   type="button"
                   onClick={() => setShowScanner(true)}
-                  className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm"
+                  className="btn btn-secondary"
                   title="Scan barcode"
+                  style={{ flexShrink: 0 }}
                 >
-                  📷
+                  <IconScan />
                 </button>
               </div>
             </div>
 
             {/* Product Name */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Product Name *</label>
+              <label className="field-label">Product name</label>
               <input
                 name="name"
                 defaultValue={product?.name || nameLookup || ''}
                 required
-                placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coke 1.5L'}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                placeholder={isFetchingInfo ? 'Looking up online…' : 'e.g. Coke 1.5L'}
+                className="input"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Category</label>
+              <label className="field-label">Category</label>
               <input
                 name="category"
                 list="category-suggestions"
                 defaultValue={product?.category || ''}
                 placeholder="e.g. Beverages, Snacks"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                className="input"
               />
               <datalist id="category-suggestions">
                 {existingCategories.map((c) => (
@@ -169,21 +203,21 @@ function ProductForm({
 
             {/* Quantity */}
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Quantity *</label>
+              <label className="field-label">Quantity</label>
               <input
                 name="quantity"
                 type="number"
                 min="0"
                 defaultValue={product?.quantity ?? ''}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                className="input tabular"
               />
             </div>
 
             {/* Prices */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Cost Price (₱) *</label>
+                <label className="field-label">Cost price ₱</label>
                 <input
                   name="cost_price"
                   type="number"
@@ -191,11 +225,11 @@ function ProductForm({
                   step="0.01"
                   defaultValue={product?.cost_price ?? ''}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                  className="input tabular"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Selling Price (₱) *</label>
+                <label className="field-label">Selling price ₱</label>
                 <input
                   name="selling_price"
                   type="number"
@@ -203,26 +237,17 @@ function ProductForm({
                   step="0.01"
                   defaultValue={product?.selling_price ?? ''}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+                  className="input tabular"
                 />
               </div>
             </div>
 
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isPending}
-                className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-              >
+            <div className="flex gap-2 pt-1">
+              <button type="button" onClick={onClose} disabled={isPending} className="btn btn-secondary" style={{ flex: 1 }}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={isPending}
-                className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-60"
-              >
-                {isPending ? 'Saving...' : isEditing ? 'Update Product' : 'Add Product'}
+              <button type="submit" disabled={isPending} className="btn btn-primary" style={{ flex: 1 }}>
+                {isPending ? 'Saving…' : isEditing ? 'Update product' : 'Add product'}
               </button>
             </div>
           </form>
@@ -263,25 +288,20 @@ function DeleteModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-sm shadow-xl p-5">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Delete Product?</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-          Are you sure you want to delete <strong className="dark:text-white">{product.name}</strong>? This cannot be undone.
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-          >
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 400 }}>
+        <div className="p-5">
+          <h3 className="text-base font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Delete product?</h3>
+          <p className="text-[13px] mt-2" style={{ color: 'var(--text-muted)' }}>
+            Are you sure you want to delete <span className="font-medium" style={{ color: 'var(--text)' }}>{product.name}</span>? This cannot be undone.
+          </p>
+        </div>
+        <div className="flex gap-2 px-5 pb-5">
+          <button onClick={onClose} className="btn btn-secondary" style={{ flex: 1 }}>
             Cancel
           </button>
-          <button
-            onClick={handleDelete}
-            disabled={isPending}
-            className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium disabled:opacity-60"
-          >
-            {isPending ? 'Deleting...' : 'Delete'}
+          <button onClick={handleDelete} disabled={isPending} className="btn btn-danger-solid" style={{ flex: 1 }}>
+            {isPending ? 'Deleting…' : 'Delete'}
           </button>
         </div>
       </div>
@@ -292,7 +312,6 @@ function DeleteModal({
 // ─── Main Inventory Page ─────────────────────────────────────────────────────
 export default function InventoryPage() {
   const [products, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [editProduct, setEditProduct] = useState<Product | null>(null)
@@ -311,123 +330,126 @@ export default function InventoryPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProducts()
   }, [])
 
-  // Filter when search changes
-  useEffect(() => {
+  // Derived: filter products when search changes
+  const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) {
-      setFilteredProducts(products)
-      return
-    }
-    setFilteredProducts(
-      products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.barcode && p.barcode.toLowerCase().includes(q)) ||
-          (p.category && p.category.toLowerCase().includes(q))
-      )
+    if (!q) return products
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q))
     )
   }, [search, products])
 
   return (
-    <div className="p-4">
+    <div className="px-4 py-5 md:px-8 md:py-8 max-w-[1280px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="page-header flex-row md:items-end md:justify-between flex flex-col md:flex-row gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Inventory</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{products.length} products</p>
+          <h1 className="page-title text-[22px]">Inventory</h1>
+          <p className="page-subtitle">{products.length} {products.length === 1 ? 'product' : 'products'} in your store</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="btn btn-primary"
+          style={{ alignSelf: 'flex-start' }}
         >
-          + Add Product
+          <IconPlus /> Add product
         </button>
       </div>
 
       {/* Search */}
-      <div className="mb-4">
+      <div className="mb-4 relative">
+        <div
+          className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: 'var(--text-subtle)' }}
+        >
+          <IconSearch />
+        </div>
         <input
           type="text"
-          placeholder="Search by name, barcode, or category..."
+          placeholder="Search by name, barcode, or category…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          className="input pl-9"
         />
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 table-container">
+      <div className="surface overflow-hidden">
         {loading ? (
-          <p className="p-8 text-center text-gray-400 text-sm">Loading products...</p>
+          <p className="p-10 text-center text-[13px]" style={{ color: 'var(--text-subtle)' }}>Loading products…</p>
         ) : filteredProducts.length === 0 ? (
-          <p className="p-8 text-center text-gray-400 text-sm">
-            {search ? 'No products match your search.' : 'No products yet. Add your first product!'}
-          </p>
+          <div className="p-10 text-center" style={{ color: 'var(--text-subtle)' }}>
+            <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
+              {search ? `No products match "${search}"` : 'No products yet'}
+            </p>
+            <p className="text-[12px] mt-1">Add your first product to get started.</p>
+          </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Barcode</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Product Name</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Qty</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Cost (₱)</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Price (₱)</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Status</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((product) => {
-                const status = getStockStatus(product.quantity)
-                return (
-                  <tr key={product.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-3 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">
-                      {product.barcode || '—'}
-                    </td>
-                    <td className="px-3 py-3">
-                      <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
-                      {product.category && (
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{product.category}</p>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 text-right font-mono text-gray-800 dark:text-gray-200">
-                      {product.quantity}
-                    </td>
-                    <td className="px-3 py-3 text-right text-gray-600 dark:text-gray-300">
-                      {product.cost_price.toFixed(2)}
-                    </td>
-                    <td className="px-3 py-3 text-right font-medium text-gray-900 dark:text-white">
-                      {product.selling_price.toFixed(2)}
-                    </td>
-                    <td className="px-3 py-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${status.color}`}>
-                        {status.label}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-center">
-                      <div className="flex justify-center gap-1">
-                        <button
-                          onClick={() => setEditProduct(product)}
-                          className="px-2 py-1 text-blue-600 hover:bg-blue-50 rounded text-xs font-medium"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => setDeleteModal(product)}
-                          className="px-2 py-1 text-red-600 hover:bg-red-50 rounded text-xs font-medium"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div className="table-container">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Barcode</th>
+                  <th>Product</th>
+                  <th className="is-num">Qty</th>
+                  <th className="is-num">Cost</th>
+                  <th className="is-num">Price</th>
+                  <th>Status</th>
+                  <th className="is-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map((product) => {
+                  const status = getStockStatus(product.quantity)
+                  return (
+                    <tr key={product.id}>
+                      <td className="mono" style={{ color: 'var(--text-muted)' }}>
+                        {product.barcode || '—'}
+                      </td>
+                      <td>
+                        <p className="font-medium" style={{ color: 'var(--text)' }}>{product.name}</p>
+                        {product.category && (
+                          <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-subtle)' }}>{product.category}</p>
+                        )}
+                      </td>
+                      <td className="is-num tabular font-medium">{product.quantity}</td>
+                      <td className="is-num tabular" style={{ color: 'var(--text-muted)' }}>
+                        {product.cost_price.toFixed(2)}
+                      </td>
+                      <td className="is-num tabular font-medium">{product.selling_price.toFixed(2)}</td>
+                      <td>
+                        <span className={`pill ${status.pill}`}>{status.label}</span>
+                      </td>
+                      <td className="is-center">
+                        <div className="flex justify-center gap-1">
+                          <button
+                            onClick={() => setEditProduct(product)}
+                            className="btn btn-ghost btn-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => setDeleteModal(product)}
+                            className="btn btn-ghost btn-sm"
+                            style={{ color: 'var(--danger)' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

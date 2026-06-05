@@ -5,6 +5,56 @@ import { updateSettings } from '@/app/actions/settings'
 import Cropper from 'react-easy-crop'
 import { getCroppedImg } from '@/lib/cropImage'
 
+function IconCamera({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M3 7h3l2-3h8l2 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  )
+}
+function IconLock({ className = 'w-3.5 h-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <rect x="4" y="11" width="16" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  )
+}
+function IconEye({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+function IconEyeOff({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a3 3 0 0 0 4 4" />
+      <path d="M9.9 5.1A10 10 0 0 1 22 12c-.6 1.2-1.4 2.4-2.4 3.4" />
+      <path d="M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7c1.4 0 2.7-.3 3.9-.8" />
+    </svg>
+  )
+}
+function IconSun({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  )
+}
+function IconMoon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
+  )
+}
+
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState('')
   const [email, setEmail] = useState('')
@@ -18,7 +68,7 @@ export default function SettingsPage() {
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  
+
   const [loadingInitial, setLoadingInitial] = useState(true)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
@@ -30,6 +80,7 @@ export default function SettingsPage() {
     // Theme
     const saved = localStorage.getItem('theme')
     if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDarkMode(true)
     }
 
@@ -111,165 +162,182 @@ export default function SettingsPage() {
       if (result?.error) {
         setError(result.error)
       } else {
-        setSuccess('Settings updated successfully! Refreshing to apply changes...')
+        setSuccess('Settings updated. Refreshing to apply changes…')
         setTimeout(() => window.location.reload(), 1500)
       }
     })
   }
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Store Settings</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Manage store identity, credentials, and app preferences</p>
+    <div className="px-4 py-5 md:px-8 md:py-8 max-w-[720px] mx-auto">
+      <div className="page-header">
+        <h1 className="page-title text-[22px]">Settings</h1>
+        <p className="page-subtitle">Manage your store profile, credentials, and app preferences.</p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-8">
-        
-        {/* Appearance Settings */}
-        <section>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Appearance</h2>
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-700">
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">Theme</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Switch between Light and Dark mode UI</p>
-            </div>
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-            >
-              {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
-            </button>
+      {error && (
+        <div
+          className="p-3 rounded-lg text-[13px] mb-4"
+          style={{ backgroundColor: 'var(--danger-soft)', color: 'var(--danger)' }}
+        >
+          {error}
+        </div>
+      )}
+      {success && (
+        <div
+          className="p-3 rounded-lg text-[13px] mb-4"
+          style={{ backgroundColor: 'var(--success-soft)', color: 'var(--success)' }}
+        >
+          {success}
+        </div>
+      )}
+
+      {/* Appearance */}
+      <section className="surface p-5 mb-4">
+        <h2 className="text-[14px] font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Appearance</h2>
+        <p className="text-[12.5px] mt-0.5 mb-4" style={{ color: 'var(--text-muted)' }}>Choose how the app looks.</p>
+
+        <div className="flex items-center justify-between panel p-3.5">
+          <div className="min-w-0">
+            <p className="text-[13.5px] font-medium" style={{ color: 'var(--text)' }}>Theme</p>
+            <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              {isDarkMode ? 'Currently using dark mode' : 'Currently using light mode'}
+            </p>
           </div>
-        </section>
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            className="btn btn-secondary"
+          >
+            {isDarkMode ? <><IconMoon /> Dark</> : <><IconSun /> Light</>}
+          </button>
+        </div>
+      </section>
 
-        <hr className="border-gray-200 dark:border-gray-700" />
+      {/* Profile */}
+      <section className="surface p-5 mb-4">
+        <h2 className="text-[14px] font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Store profile</h2>
+        <p className="text-[12.5px] mt-0.5 mb-5" style={{ color: 'var(--text-muted)' }}>Update your store name, photo, and password.</p>
 
-        {/* Store Identifiers */}
-        <section>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">App Profile</h2>
-          
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-              {success}
-            </div>
-          )}
+        {loadingInitial ? (
+          <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>Loading current settings…</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
 
-          {loadingInitial ? (
-             <p className="text-sm text-gray-500 dark:text-gray-400">Loading current settings...</p>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* Profile Photo */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Store Logo / Avatar
-                </label>
-                <div className="flex items-center gap-4">
-                  {photoBase64 ? (
-                    <img src={photoBase64} alt="Preview" className="w-16 h-16 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-700 dark:text-blue-400 text-2xl font-bold border border-blue-200 dark:border-blue-800">
-                      {storeName ? storeName.charAt(0).toUpperCase() : '🛒'}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            {/* Profile Photo */}
+            <div>
+              <label className="field-label">Store logo / avatar</label>
+              <div className="flex items-center gap-4">
+                {photoBase64 ? (
+                  <img src={photoBase64} alt="Preview" className="w-14 h-14 rounded-full object-cover" style={{ border: '1px solid var(--border)' }} />
+                ) : (
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-semibold"
+                    style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--text)', border: '1px solid var(--border)' }}
                   >
-                    Change Photo
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-
-              {/* Email (Read-Only) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email <span className="text-xs text-gray-400 dark:text-gray-500">(read-only)</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={email}
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xs">🔒</span>
-                </div>
-              </div>
-
-              {/* Store Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Store Name
-                </label>
+                    {storeName ? storeName.charAt(0).toUpperCase() : '🛒'}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn btn-secondary"
+                >
+                  <IconCamera /> Change photo
+                </button>
                 <input
-                  type="text"
-                  value={storeName}
-                  onChange={(e) => setStoreName(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
               </div>
+            </div>
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  New Password (Optional)
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Leave blank to keep current password"
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-gray-900 dark:text-white"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-60 hover:bg-blue-700"
+            {/* Email (Read-Only) */}
+            <div>
+              <label className="field-label">
+                Email <span className="text-[11px] font-normal" style={{ color: 'var(--text-subtle)' }}>(read-only)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  disabled
+                  className="input pr-9"
+                  style={{ backgroundColor: 'var(--bg-subtle)' }}
+                />
+                <span
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{ color: 'var(--text-subtle)' }}
                 >
-                  {isPending ? 'Saving...' : 'Save Profile Settings'}
+                  <IconLock />
+                </span>
+              </div>
+            </div>
+
+            {/* Store Name */}
+            <div>
+              <label className="field-label">Store name</label>
+              <input
+                type="text"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                required
+                className="input"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="field-label">New password <span className="text-[11px] font-normal" style={{ color: 'var(--text-subtle)' }}>(optional)</span></label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Leave blank to keep current password"
+                  className="input pr-9"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1"
+                  style={{ color: 'var(--text-subtle)' }}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <IconEyeOff /> : <IconEye />}
                 </button>
               </div>
-            </form>
-          )}
+            </div>
 
-        </section>
-      </div>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="btn btn-primary btn-lg"
+              >
+                {isPending ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
 
       {/* Cropper Modal */}
       {rawImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md h-[450px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-            <div className="relative flex-1 bg-gray-900">
+        <div className="modal-backdrop" onClick={() => setRawImage('')}>
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 480, padding: 0, overflow: 'hidden' }}
+          >
+            <div className="px-5 py-3.5 border-b" style={{ borderColor: 'var(--border)' }}>
+              <h3 className="text-[15px] font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Crop photo</h3>
+              <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Drag to reposition, scroll to zoom.</p>
+            </div>
+            <div className="relative" style={{ height: 360, background: '#0a0a0a' }}>
               <Cropper
                 image={rawImage}
                 crop={crop}
@@ -282,36 +350,25 @@ export default function SettingsPage() {
                 onZoomChange={setZoom}
               />
             </div>
-            
-            {/* Range slider for zoom */}
-            <div className="px-5 pt-3 pb-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
-              <p className="text-xs text-center text-gray-500 mb-2">Zoom</p>
-              <input 
+            <div className="px-5 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
+              <input
                 type="range"
                 value={zoom}
                 min={1}
                 max={3}
                 step={0.1}
-                aria-labelledby="Zoom"
+                aria-label="Zoom"
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" 
+                className="w-full accent-current"
+                style={{ accentColor: 'var(--accent)' }}
               />
             </div>
-
-            <div className="p-4 bg-white dark:bg-gray-900 flex justify-between gap-3 shrink-0 border-t border-gray-100 dark:border-gray-800">
-              <button
-                type="button"
-                onClick={() => setRawImage('')}
-                className="flex-1 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition"
-              >
+            <div className="flex gap-2 px-5 pb-5">
+              <button type="button" onClick={() => setRawImage('')} className="btn btn-secondary" style={{ flex: 1 }}>
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={applyCrop}
-                className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
-              >
-                Apply Crop
+              <button type="button" onClick={applyCrop} className="btn btn-primary" style={{ flex: 1 }}>
+                Apply
               </button>
             </div>
           </div>

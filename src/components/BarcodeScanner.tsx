@@ -188,8 +188,8 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
       {/* Header */}
       <div className="flex items-center justify-between p-3 bg-black/90 text-white safe-area-top">
         <div>
-          <h3 className="font-semibold text-sm">📷 Scan Barcode</h3>
-          <p className="text-[10px] text-gray-400">
+          <h3 className="font-semibold text-sm tracking-tight">Scan barcode</h3>
+          <p className="text-[11px] text-gray-400 mt-0.5">
             UPC-A · EAN-13 · Code 128 · and more
           </p>
         </div>
@@ -198,7 +198,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             stopScanning()
             onClose()
           }}
-          className="w-9 h-9 flex items-center justify-center bg-white/10 rounded-full text-white text-lg"
+          className="w-9 h-9 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white text-base transition-colors"
           aria-label="Close scanner"
         >
           ✕
@@ -278,14 +278,14 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
       {/* Camera Switcher (multiple cameras) */}
       {devices.length > 1 && !error && (
-        <div className="p-2 bg-black/90 flex gap-2">
+        <div className="p-2 bg-black/90 flex gap-1.5">
           {devices.map((d, i) => (
             <button
               key={d.deviceId}
               onClick={() => handleCameraSwitch(d.deviceId)}
-              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex-1 py-2 rounded-md text-xs font-medium transition-colors ${
                 selectedDevice === d.deviceId
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-white text-black'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
               }`}
             >
@@ -299,7 +299,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
 
       {/* Manual entry fallback */}
       <div className="p-3 bg-black/90 safe-area-bottom">
-        <p className="text-gray-500 text-[10px] text-center mb-1.5">
+        <p className="text-gray-500 text-[11px] text-center mb-1.5">
           Camera not working? Enter barcode manually:
         </p>
         <form
@@ -320,11 +320,11 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             inputMode="numeric"
             pattern="[0-9]*"
             placeholder="e.g. 0745760973590"
-            className="flex-1 bg-white/10 text-white border border-white/20 rounded-lg px-3 py-2.5 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 bg-white/10 text-white border border-white/20 rounded-md px-3 py-2.5 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-white/40"
           />
           <button
             type="submit"
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
+            className="px-5 py-2.5 bg-white text-black rounded-md text-sm font-semibold hover:bg-gray-200 transition-colors"
           >
             Go
           </button>

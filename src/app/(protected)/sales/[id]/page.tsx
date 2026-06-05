@@ -7,6 +7,14 @@ import { getSession } from '@/lib/session'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
+function IconArrowLeft({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  )
+}
+
 export default async function TransactionPage({
   params,
 }: {
@@ -34,72 +42,87 @@ export default async function TransactionPage({
     .eq('sale_id', id)
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="px-4 py-5 md:px-8 md:py-8 max-w-[720px] mx-auto">
       {/* Back link */}
       <Link
         href="/sales"
-        className="text-blue-600 text-sm flex items-center gap-1 mb-4 hover:text-blue-800"
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium mb-4"
+        style={{ color: 'var(--text-muted)' }}
       >
-        ← Back to Sales Records
+        <IconArrowLeft /> Back to sales
       </Link>
 
       {/* Transaction Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">{sale.transaction_number}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+      <div className="surface p-5 mb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[12px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+              Transaction
+            </p>
+            <h1 className="mono text-[15px] font-semibold mt-1" style={{ color: 'var(--text)' }}>
+              {sale.transaction_number}
+            </h1>
+            <p className="text-[13px] mt-1" style={{ color: 'var(--text-muted)' }}>
               {new Date(sale.created_at).toLocaleString('en-PH', {
-                dateStyle: 'full',
+                dateStyle: 'long',
                 timeStyle: 'short',
               })}
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Total Amount</p>
-            <p className="text-2xl font-bold text-green-600">₱{Number(sale.total_amount).toFixed(2)}</p>
+          <div className="text-right flex-shrink-0">
+            <p className="text-[12px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Total</p>
+            <p className="text-2xl font-semibold tabular tracking-tight mt-1" style={{ color: 'var(--text)' }}>
+              ₱{Number(sale.total_amount).toFixed(2)}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Items Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm table-container">
-        <div className="p-3 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-800">Items Sold</h2>
+      <div className="surface overflow-hidden">
+        <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+          <h2 className="text-[14px] font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+            Items sold
+          </h2>
+          <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {items?.length ?? 0} {items?.length === 1 ? 'item' : 'items'}
+          </p>
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-3 py-2 font-semibold text-gray-600 text-xs">Product</th>
-              <th className="text-right px-3 py-2 font-semibold text-gray-600 text-xs">Qty</th>
-              <th className="text-right px-3 py-2 font-semibold text-gray-600 text-xs">Unit Price</th>
-              <th className="text-right px-3 py-2 font-semibold text-gray-600 text-xs">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items?.map((item) => (
-              <tr key={item.id} className="border-b border-gray-100">
-                <td className="px-3 py-3 text-gray-900">
-                  {/* @ts-ignore — Supabase join type */}
-                  {item.products?.name || 'Deleted Product'}
-                </td>
-                <td className="px-3 py-3 text-right text-gray-600">{item.quantity}</td>
-                <td className="px-3 py-3 text-right text-gray-600">₱{Number(item.unit_price).toFixed(2)}</td>
-                <td className="px-3 py-3 text-right font-medium text-gray-900">₱{Number(item.subtotal).toFixed(2)}</td>
+        <div className="table-container">
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th className="is-num">Qty</th>
+                <th className="is-num">Unit</th>
+                <th className="is-num">Subtotal</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot className="bg-gray-50">
-            <tr>
-              <td colSpan={3} className="px-3 py-3 text-right font-bold text-gray-800">
-                TOTAL
-              </td>
-              <td className="px-3 py-3 text-right font-bold text-green-700 text-base">
-                ₱{Number(sale.total_amount).toFixed(2)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {items?.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    {/* @ts-ignore — Supabase join type */}
+                    {item.products?.name || <span style={{ color: 'var(--text-subtle)' }}>Deleted product</span>}
+                  </td>
+                  <td className="is-num tabular">{item.quantity}</td>
+                  <td className="is-num tabular" style={{ color: 'var(--text-muted)' }}>₱{Number(item.unit_price).toFixed(2)}</td>
+                  <td className="is-num tabular font-semibold">₱{Number(item.subtotal).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={3} className="is-num text-[13px] uppercase tracking-wider" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border)' }}>
+                  Total
+                </td>
+                <td className="is-num text-base font-semibold tabular" style={{ color: 'var(--text)', borderTop: '1px solid var(--border)' }}>
+                  ₱{Number(sale.total_amount).toFixed(2)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   )

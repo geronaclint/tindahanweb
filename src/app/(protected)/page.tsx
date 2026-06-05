@@ -5,18 +5,74 @@
  */
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import type { Product, CartItem, DashboardStats } from '@/lib/types'
 import { completeSale } from '@/app/actions/sales'
 import BarcodeScanner from '@/components/BarcodeScanner'
 
+// ─── Small inline icons ─────────────────────────────────────────────────────
+function IconSearch({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </svg>
+  )
+}
+function IconScan({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <path d="M7 12h10" />
+    </svg>
+  )
+}
+function IconPlus({ className = 'w-3.5 h-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+function IconMinus({ className = 'w-3.5 h-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M5 12h14" />
+    </svg>
+  )
+}
+function IconX({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  )
+}
+function IconBag({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M6 7h12l-1 13H7L6 7z" />
+      <path d="M9 7a3 3 0 0 1 6 0" />
+    </svg>
+  )
+}
+function IconCheck({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  )
+}
 
 // ─── Dashboard Stats Card ───────────────────────────────────────────────────
-function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
+function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl p-3 border-l-4 ${color} shadow-sm border border-gray-100 dark:border-gray-700`}>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-lg font-bold text-gray-800 dark:text-gray-100 mt-0.5">{value}</p>
+    <div className="surface p-3.5">
+      <p className="text-[11px] uppercase tracking-wider" style={{ color: 'var(--text-subtle)' }}>{label}</p>
+      <p className="text-lg font-semibold tabular tracking-tight mt-0.5" style={{ color: 'var(--text)' }}>{value}</p>
     </div>
   )
 }
@@ -33,24 +89,38 @@ function ProductRow({
   const isLowStock = product.quantity > 0 && product.quantity <= 5
 
   return (
-    <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{product.name}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          ₱{product.selling_price.toFixed(2)} &bull;{' '}
-          <span className={isOutOfStock ? 'text-red-500' : isLowStock ? 'text-yellow-500' : 'text-green-500'}>
-            {isOutOfStock ? 'Out of Stock' : `${product.quantity} in stock`}
-          </span>
+    <button
+      type="button"
+      onClick={() => onAdd(product)}
+      disabled={isOutOfStock}
+      className="w-full text-left flex items-center justify-between gap-3 px-4 py-3 border-b transition-colors"
+      style={{ borderColor: 'var(--border)' }}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-[13.5px] font-medium truncate" style={{ color: 'var(--text)' }}>{product.name}</p>
+        <p className="text-[12px] mt-0.5 flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+          <span className="tabular">₱{product.selling_price.toFixed(2)}</span>
+          <span style={{ color: 'var(--text-subtle)' }}>·</span>
+          {isOutOfStock ? (
+            <span className="pill pill-danger" style={{ height: 18, fontSize: 10, padding: '0 6px' }}>Out of stock</span>
+          ) : isLowStock ? (
+            <span className="pill pill-warn" style={{ height: 18, fontSize: 10, padding: '0 6px' }}>{product.quantity} left</span>
+          ) : (
+            <span className="tabular">{product.quantity} in stock</span>
+          )}
         </p>
       </div>
-      <button
-        onClick={() => onAdd(product)}
-        disabled={isOutOfStock}
-        className="ml-3 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 flex-shrink-0"
+      <span
+        className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md text-[12px] font-medium flex-shrink-0"
+        style={{
+          backgroundColor: isOutOfStock ? 'var(--bg-subtle)' : 'var(--text)',
+          color: isOutOfStock ? 'var(--text-subtle)' : 'var(--bg)',
+          opacity: isOutOfStock ? 0.6 : 1,
+        }}
       >
-        Add
-      </button>
-    </div>
+        <IconPlus /> Add
+      </span>
+    </button>
   )
 }
 
@@ -69,43 +139,48 @@ function CartRow({
   const subtotal = item.product.selling_price * item.quantity
 
   return (
-    <div className="flex items-center py-3 border-b border-gray-100 dark:border-gray-700 gap-2">
-      {/* Product info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.product.name}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">₱{item.product.selling_price.toFixed(2)} each</p>
+    <div className="flex items-center py-3 border-b gap-3" style={{ borderColor: 'var(--border)' }}>
+      <div className="min-w-0 flex-1">
+        <p className="text-[13.5px] font-medium truncate" style={{ color: 'var(--text)' }}>{item.product.name}</p>
+        <p className="text-[12px] tabular mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          ₱{item.product.selling_price.toFixed(2)} each
+        </p>
       </div>
 
-      {/* Quantity controls */}
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-0.5 flex-shrink-0" style={{ backgroundColor: 'var(--bg-subtle)', borderRadius: 7, padding: 2 }}>
         <button
           onClick={onDecrease}
-          className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-gray-900 dark:text-white font-bold hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="w-7 h-7 flex items-center justify-center rounded transition-colors"
+          style={{ color: 'var(--text)' }}
+          aria-label="Decrease quantity"
         >
-          −
+          <IconMinus />
         </button>
-        <span className="w-8 text-center text-sm font-semibold dark:text-white">{item.quantity}</span>
+        <span className="w-7 text-center text-[13px] font-semibold tabular" style={{ color: 'var(--text)' }}>{item.quantity}</span>
         <button
           onClick={onIncrease}
           disabled={item.quantity >= item.product.quantity}
-          className="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-gray-900 dark:text-white font-bold hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-40"
+          className="w-7 h-7 flex items-center justify-center rounded transition-colors disabled:opacity-30"
+          style={{ color: 'var(--text)' }}
+          aria-label="Increase quantity"
         >
-          +
+          <IconPlus />
         </button>
       </div>
 
-      {/* Subtotal */}
-      <div className="text-right flex-shrink-0 w-24">
-        <p className="text-sm font-bold text-gray-900 dark:text-white">₱{subtotal.toFixed(2)}</p>
+      <div className="text-right flex-shrink-0 w-20">
+        <p className="text-[13.5px] font-semibold tabular" style={{ color: 'var(--text)' }}>₱{subtotal.toFixed(2)}</p>
       </div>
 
-      {/* Remove */}
       <button
         onClick={onRemove}
-        className="text-red-400 hover:text-red-500 flex-shrink-0 px-2 py-1 text-lg font-bold"
+        className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md transition-colors"
+        style={{ color: 'var(--text-subtle)' }}
         aria-label="Remove item"
+        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.backgroundColor = 'var(--danger-soft)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-subtle)'; e.currentTarget.style.backgroundColor = 'transparent' }}
       >
-        ✕
+        <IconX />
       </button>
     </div>
   )
@@ -130,7 +205,7 @@ function AddFromBarcodeModal({
   useEffect(() => {
     async function fetchName() {
       if (!barcode || barcode.length < 4) return
-      
+
       setIsFetchingInfo(true)
       let foundName = ''
 
@@ -196,85 +271,65 @@ function AddFromBarcodeModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-sm shadow-xl border border-gray-200 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-          <h3 className="font-semibold text-gray-900 dark:text-white">Product Not Found</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Add this product to inventory?</p>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="p-5 border-b" style={{ borderColor: 'var(--border)' }}>
+          <h3 className="text-base font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Product not found</h3>
+          <p className="text-[13px] mt-1" style={{ color: 'var(--text-muted)' }}>Add this product to your inventory?</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-3">
-          {error && <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>}
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
+          {error && (
+            <div
+              className="p-3 rounded-lg text-[13px]"
+              style={{ backgroundColor: 'var(--danger-soft)', color: 'var(--danger)' }}
+            >
+              {error}
+            </div>
+          )}
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Barcode</label>
+            <label className="field-label">Barcode</label>
             <input
               name="barcode"
               defaultValue={barcode}
               readOnly
-              className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400"
+              className="input mono"
+              style={{ backgroundColor: 'var(--bg-subtle)' }}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Product Name *</label>
+            <label className="field-label">Product name</label>
             <input
               name="name"
               required
               autoFocus
               defaultValue={nameLookup}
-              placeholder={isFetchingInfo ? 'Fetching online info...' : 'e.g. Coca-Cola 1.5L'}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
+              placeholder={isFetchingInfo ? 'Looking up online…' : 'e.g. Coca-Cola 1.5L'}
+              className="input"
             />
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2.5">
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Qty *</label>
-              <input
-                name="quantity"
-                type="number"
-                min="0"
-                required
-                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
-              />
+              <label className="field-label">Qty</label>
+              <input name="quantity" type="number" min="0" required className="input tabular" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Cost (₱) *</label>
-              <input
-                name="cost_price"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
-              />
+              <label className="field-label">Cost ₱</label>
+              <input name="cost_price" type="number" min="0" step="0.01" required className="input tabular" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">Price (₱) *</label>
-              <input
-                name="selling_price"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                className="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent text-gray-900 dark:text-white"
-              />
+              <label className="field-label">Price ₱</label>
+              <input name="selling_price" type="number" min="0" step="0.01" required className="input tabular" />
             </div>
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-            >
+          <div className="flex gap-2 pt-1">
+            <button type="button" onClick={onClose} className="btn btn-secondary" style={{ flex: 1 }}>
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-60"
-            >
-              {loading ? 'Saving...' : 'Save Product'}
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
+              {loading ? 'Saving…' : 'Save product'}
             </button>
           </div>
         </form>
@@ -294,18 +349,26 @@ function SaleSuccessModal({
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-sm shadow-xl text-center p-6">
-        <div className="text-5xl mb-3">✅</div>
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Sale Complete!</h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{transactionNumber}</p>
-        <p className="text-3xl font-bold text-green-600 mt-4">₱{totalAmount.toFixed(2)}</p>
-        <button
-          onClick={onClose}
-          className="mt-6 w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-        >
-          New Sale
-        </button>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: 'center' }}>
+        <div className="p-6">
+          <div
+            className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3"
+            style={{ backgroundColor: 'var(--success-soft)', color: 'var(--success)' }}
+          >
+            <IconCheck className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+            Sale complete
+          </h3>
+          <p className="mono mt-1" style={{ color: 'var(--text-muted)' }}>{transactionNumber}</p>
+          <p className="text-3xl font-semibold tabular tracking-tight mt-3" style={{ color: 'var(--text)' }}>
+            ₱{totalAmount.toFixed(2)}
+          </p>
+          <button onClick={onClose} className="btn btn-primary btn-block btn-lg mt-5">
+            New sale
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -315,13 +378,11 @@ function SaleSuccessModal({
 export default function POSPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [showScanner, setShowScanner] = useState(false)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [showDashboardStats, setShowDashboardStats] = useState(false)
 
-  const [loading, setLoading] = useState(false)
   const [saleLoading, setSaleLoading] = useState(false)
   const [saleSuccess, setSaleSuccess] = useState<{ transactionNumber: string; totalAmount: number } | null>(null)
   const [addFromBarcodeModal, setAddFromBarcodeModal] = useState<string | null>(null)
@@ -342,19 +403,17 @@ export default function POSPage() {
     setStats(statsData)
   }
 
-  // Filter products as user types
-  useEffect(() => {
+  // Derived: filter products as the user types
+  const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    if (!q) {
-      setSearchResults([])
-      return
-    }
-    const filtered = products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.barcode && p.barcode.toLowerCase().includes(q))
-    )
-    setSearchResults(filtered.slice(0, 10))
+    if (!q) return []
+    return products
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.barcode && p.barcode.toLowerCase().includes(q))
+      )
+      .slice(0, 10)
   }, [searchQuery, products])
 
   // Add product to cart or increase quantity
@@ -375,7 +434,6 @@ export default function POSPage() {
 
     // Clear search after adding
     setSearchQuery('')
-    setSearchResults([])
   }, [])
 
   // Increase quantity in cart
@@ -446,61 +504,131 @@ export default function POSPage() {
     (sum, item) => sum + item.product.selling_price * item.quantity,
     0
   )
+  const cartItemCount = cart.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
-    <div className="p-4">
-      {/* Page Title */}
-      <div className="mb-4 text-center md:text-left">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Point of Sale</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Search products, scan barcodes, complete sales</p>
+    <div className="px-4 py-5 md:px-8 md:py-8 max-w-[1280px] mx-auto">
+      {/* Page Header */}
+      <div className="page-header flex-row md:items-end md:justify-between mb-6 flex flex-col md:flex-row gap-3">
+        <div>
+          <h1 className="page-title text-[22px]">Point of Sale</h1>
+          <p className="page-subtitle">Search products, scan barcodes, complete sales.</p>
+        </div>
+        {stats && (
+          <button
+            type="button"
+            onClick={() => setShowDashboardStats((v) => !v)}
+            className="btn btn-secondary btn-sm"
+            style={{ alignSelf: 'flex-start' }}
+          >
+            {showDashboardStats ? 'Hide stats' : 'Show stats'}
+          </button>
+        )}
       </div>
 
       {/* Dashboard Stats (collapsible) */}
-      {stats && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Dashboard</h2>
-            <button
-              type="button"
-              onClick={() => setShowDashboardStats((v) => !v)}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            >
-              {showDashboardStats ? 'Hide' : 'Show'} stats
-            </button>
-          </div>
-
-          {showDashboardStats && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              <StatCard label="Total Products" value={stats.totalProducts.toString()} color="border-blue-500" />
-              <StatCard label="Inventory Value" value={`₱${stats.totalInventoryValue.toFixed(0)}`} color="border-purple-500" />
-              <StatCard label="Sales Today" value={`₱${stats.totalSalesToday.toFixed(0)}`} color="border-green-500" />
-              <StatCard label="Sales This Month" value={`₱${stats.totalSalesMonth.toFixed(0)}`} color="border-yellow-500" />
-              <StatCard
-                label="Low Stock Items"
-                value={stats.lowStockCount.toString()}
-                color={stats.lowStockCount > 0 ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'}
-              />
-            </div>
-          )}
+      {stats && showDashboardStats && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-6">
+          <StatCard label="Products" value={stats.totalProducts.toString()} />
+          <StatCard label="Inventory value" value={`₱${stats.totalInventoryValue.toFixed(0)}`} />
+          <StatCard label="Sales today" value={`₱${stats.totalSalesToday.toFixed(0)}`} />
+          <StatCard label="This month" value={`₱${stats.totalSalesMonth.toFixed(0)}`} />
+          <StatCard
+            label="Low stock"
+            value={stats.lowStockCount.toString()}
+          />
         </div>
       )}
 
+      {/* Main Grid: cart first on mobile, search second. On desktop, search left, cart right. */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        {/* ── Search (left on desktop) ── */}
+        <div className="surface overflow-hidden flex flex-col order-2 lg:order-1 lg:col-span-3">
+          <div className="p-3 border-b" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <div
+                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{ color: 'var(--text-subtle)' }}
+                >
+                  <IconSearch />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search products by name or barcode…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input pl-9"
+                  style={{ height: 42 }}
+                />
+              </div>
+              <button
+                onClick={() => setShowScanner(true)}
+                className="btn btn-secondary"
+                style={{ height: 42, flexShrink: 0 }}
+                title="Scan barcode"
+              >
+                <IconScan /> <span className="hidden sm:inline">Scan</span>
+              </button>
+            </div>
+          </div>
 
-      {/* Main Grid: On mobile, cart is first (order-1), search is second (order-2). On md/desktop, layout is standard. */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* ── Right: Shopping Cart ── */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col order-2">
-          <div className="p-3 border-b border-gray-100 dark:border-gray-700 text-center lg:text-left">
-            <h2 className="font-semibold text-gray-900 dark:text-white text-lg">
-              🛒 Current Sale {cart.length > 0 && <span className="text-blue-600 dark:text-blue-400">({cart.length} items)</span>}
-            </h2>
+          {/* Search Results */}
+          <div className="overflow-y-auto" style={{ maxHeight: '60vh', minHeight: 280 }}>
+            {searchQuery && searchResults.length === 0 && (
+              <p className="p-8 text-[13px] text-center" style={{ color: 'var(--text-subtle)' }}>
+                No products match &ldquo;{searchQuery}&rdquo;
+              </p>
+            )}
+            {searchResults.map((product) => (
+              <ProductRow key={product.id} product={product} onAdd={addToCart} />
+            ))}
+            {!searchQuery && (
+              <div className="p-10 text-center" style={{ color: 'var(--text-subtle)' }}>
+                <div className="mx-auto w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: 'var(--bg-subtle)' }}>
+                  <IconSearch className="w-5 h-5" />
+                </div>
+                <p className="text-[13px]">Start typing a product name or scan a barcode</p>
+                <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-subtle)' }}>
+                  {products.length} {products.length === 1 ? 'product' : 'products'} in your inventory
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Cart (right on desktop) ── */}
+        <div className="surface flex flex-col overflow-hidden order-1 lg:order-2 lg:col-span-2">
+          <div className="px-4 py-3.5 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex items-center gap-2">
+              <span style={{ color: 'var(--text-muted)' }}><IconBag /></span>
+              <h2 className="text-[14px] font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+                Current sale
+              </h2>
+              {cartItemCount > 0 && (
+                <span className="pill pill-accent" style={{ height: 20, fontSize: 11 }}>
+                  {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'}
+                </span>
+              )}
+            </div>
+            {cart.length > 0 && (
+              <button
+                onClick={() => setCart([])}
+                className="text-[12px]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                Clear
+              </button>
+            )}
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto max-h-72 px-3">
+          <div className="flex-1 overflow-y-auto px-4" style={{ maxHeight: '52vh', minHeight: 220 }}>
             {cart.length === 0 ? (
-              <p className="py-12 text-gray-400 text-sm text-center">Cart is empty. Scan an item below.</p>
+              <div className="py-12 text-center" style={{ color: 'var(--text-subtle)' }}>
+                <p className="text-[13px]">Cart is empty</p>
+                <p className="text-[12px] mt-1">Add a product to get started</p>
+              </div>
             ) : (
               cart.map((item) => (
                 <CartRow
@@ -515,65 +643,22 @@ export default function POSPage() {
           </div>
 
           {/* Total and Actions */}
-          <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
-            <div className="flex justify-between items-center mb-4 px-2">
-              <span className="font-semibold text-gray-500 dark:text-gray-400 tracking-wider">TOTAL AMOUNT</span>
-              <span className="text-4xl font-bold text-gray-900 dark:text-white">₱{cartTotal.toFixed(2)}</span>
+          <div className="px-4 py-4 border-t" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex items-baseline justify-between mb-3">
+              <span className="text-[12px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Total</span>
+              <span className="text-2xl font-semibold tabular tracking-tight" style={{ color: 'var(--text)' }}>
+                ₱{cartTotal.toFixed(2)}
+              </span>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setCart([])}
-                disabled={cart.length === 0}
-                className="flex-[0.5] py-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Clear
-              </button>
-              <button
-                onClick={handleCompleteSale}
-                disabled={cart.length === 0 || saleLoading}
-                className="flex-1 py-4 bg-green-600 text-white rounded-xl text-lg font-bold disabled:opacity-40 hover:bg-green-700 shadow-lg shadow-green-600/20"
-              >
-                {saleLoading ? 'Processing...' : '💳 Pay Now'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Left: Product Search ── */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden order-1">
-          <div className="p-3 border-b border-gray-100 dark:border-gray-700 flex gap-2">
-            <input
-              type="text"
-              placeholder="Search by name or barcode..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
-            />
             <button
-              onClick={() => setShowScanner(true)}
-              className="px-4 py-3 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-bold hover:bg-gray-900 flex-shrink-0"
-              title="Scan Barcode"
+              onClick={handleCompleteSale}
+              disabled={cart.length === 0 || saleLoading}
+              className="btn btn-primary btn-block btn-xl"
             >
-              📷 Scan
+              {saleLoading ? 'Processing…' : 'Complete sale'}
             </button>
           </div>
-
-          {/* Search Results */}
-          <div className="max-h-80 overflow-y-auto">
-            {searchQuery && searchResults.length === 0 && (
-              <p className="p-4 text-gray-400 text-sm text-center">No products found</p>
-            )}
-            {searchResults.map((product) => (
-              <ProductRow key={product.id} product={product} onAdd={addToCart} />
-            ))}
-            {!searchQuery && (
-              <p className="p-8 text-gray-400 text-sm text-center">
-                Type a product name or barcode to see inventory
-              </p>
-            )}
-          </div>
         </div>
-
       </div>
 
       {/* Barcode Scanner Modal */}

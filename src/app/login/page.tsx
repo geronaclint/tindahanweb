@@ -5,6 +5,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { login } from '@/app/actions/auth'
 
 export default function LoginPage() {
@@ -27,31 +28,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-700">🛒 Tindahan POS</h1>
-          <p className="text-gray-500 mt-1 text-sm">Store Management System</p>
+    <div className="min-h-screen flex items-center justify-center px-4 py-10" style={{ backgroundColor: 'var(--bg)' }}>
+      <div className="w-full max-w-[360px]">
+        {/* Brand */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+            style={{ backgroundColor: 'var(--text)', color: 'var(--bg)' }}
+          >
+            <span className="text-base font-semibold tracking-tight">T</span>
+          </div>
+          <h1 className="text-lg font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+            Sign in to Tindahan
+          </h1>
+          <p className="text-[13px] mt-1" style={{ color: 'var(--text-muted)' }}>
+            Welcome back. Enter your details to continue.
+          </p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Store Login</h2>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              {error}
-            </div>
-          )}
-
+        <div className="surface p-5">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+            {/* Error Message */}
+            {error && (
+              <div
+                className="p-3 rounded-lg text-[13px]"
+                style={{ backgroundColor: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid transparent' }}
+              >
+                {error}
+              </div>
+            )}
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label htmlFor="email" className="field-label">Email</label>
               <input
                 id="email"
                 name="email"
@@ -59,41 +68,38 @@ export default function LoginPage() {
                 autoComplete="email"
                 required
                 placeholder="you@example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input"
               />
             </div>
 
-
-            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-
+              <label htmlFor="password" className="field-label">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
                 required
                 placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input"
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold text-sm disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-800 transition-colors"
+              className="btn btn-primary btn-block btn-lg"
             >
-              {isPending ? 'Logging in...' : 'Login'}
+              {isPending ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-gray-400 text-xs mt-6">
-          Tindahan POS v1.0 &mdash; For authorized personnel only
+        <p className="text-center text-[12px] mt-6" style={{ color: 'var(--text-subtle)' }}>
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="font-medium" style={{ color: 'var(--accent)' }}>
+            Register
+          </Link>
         </p>
       </div>
     </div>

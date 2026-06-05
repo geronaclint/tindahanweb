@@ -17,64 +17,66 @@ export default async function LogsPage() {
     .order('created_at', { ascending: false })
     .limit(500)
 
-  // Color coding for different action types
-  const actionColors: Record<string, string> = {
-    Login: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    Logout: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-    'Product Added': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    'Product Updated': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    'Product Deleted': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    'Sale Completed': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+  // Pill class for each action type
+  const actionPills: Record<string, string> = {
+    Login: 'pill pill-accent',
+    Logout: 'pill',
+    'Product Added': 'pill pill-success',
+    'Product Updated': 'pill pill-warn',
+    'Product Deleted': 'pill pill-danger',
+    'Sale Completed': 'pill pill-success',
   }
 
-  function getActionColor(action: string): string {
-    return actionColors[action] || 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+  function getActionPill(action: string): string {
+    return actionPills[action] || 'pill'
   }
 
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Activity Logs</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{logs?.length ?? 0} actions recorded</p>
+    <div className="px-4 py-5 md:px-8 md:py-8 max-w-[1280px] mx-auto">
+      <div className="page-header">
+        <h1 className="page-title text-[22px]">Activity logs</h1>
+        <p className="page-subtitle">{logs?.length ?? 0} {logs && logs.length === 1 ? 'action' : 'actions'} recorded</p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm table-container">
+      <div className="surface overflow-hidden">
         {!logs || logs.length === 0 ? (
-          <p className="p-8 text-center text-gray-400 text-sm">No activity recorded yet.</p>
+          <p className="p-10 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            No activity recorded yet.
+          </p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Timestamp</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Action</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600 dark:text-gray-300 text-xs">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-3 py-2.5 text-gray-500 dark:text-gray-400 whitespace-nowrap text-xs">
-                    <p>{new Date(log.created_at).toLocaleDateString('en-PH')}</p>
-                    <p className="text-gray-400 dark:text-gray-500">
-                      {new Date(log.created_at).toLocaleTimeString('en-PH', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                      })}
-                    </p>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getActionColor(log.action)}`}
-                    >
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 text-xs">{log.description}</td>
+          <div className="table-container">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                  <th>Description</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td className="whitespace-nowrap">
+                      <p style={{ color: 'var(--text)' }}>
+                        {new Date(log.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                      <p className="text-[12px] mt-0.5 tabular" style={{ color: 'var(--text-subtle)' }}>
+                        {new Date(log.created_at).toLocaleTimeString('en-PH', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })}
+                      </p>
+                    </td>
+                    <td>
+                      <span className={getActionPill(log.action)}>{log.action}</span>
+                    </td>
+                    <td style={{ color: 'var(--text-muted)' }}>{log.description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

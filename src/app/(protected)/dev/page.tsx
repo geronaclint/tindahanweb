@@ -29,7 +29,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   )
 }
 
-function KeyValue({ k, v, mono }: { k: string; v: string | number | null; mono?: boolean }) {
+function KeyValue({ k, v, mono }: { k: string; v: string | number | null | undefined; mono?: boolean }) {
   return (
     <div className="flex justify-between items-center py-1.5">
       <span className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{k}</span>

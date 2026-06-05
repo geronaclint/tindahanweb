@@ -83,7 +83,9 @@ function NavIcon({ name, className = 'w-[18px] h-[18px]' }: { name: string; clas
 
 export default function Navigation({ storeName, profilePhoto, isDev }: { storeName?: string, profilePhoto?: string | null, isDev?: boolean }) {
   const pathname = usePathname()
-  const visibleLinks = navLinks.filter((l) => l.href !== '/dev' || isDev)
+  const visibleLinks = isDev
+    ? navLinks.filter((l) => l.href === '/dev')
+    : navLinks.filter((l) => l.href !== '/dev')
   const mobileCols = visibleLinks.length + 1 // +1 for logout button
   const [isPending, startTransition] = useTransition()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
